@@ -404,25 +404,25 @@ body {
   50% { transform: rotate(4deg); }
 }
 
-/* Road labels */
 .road-label {
   font-family: var(--font-family);
-  font-size: 8.5px;
+  font-size: 11px;
   font-weight: 800;
-  fill: #475569;
   pointer-events: none;
   text-shadow: 0 1px 2px #fff, 0 -1px 2px #fff, 1px 0 2px #fff, -1px 0 2px #fff;
 }
 
 .road-label.cleared {
-  fill: #16a34a;
-  opacity: 0.85;
+  fill: #16a34a; /* Green */
+}
+
+.road-label.pending {
+  fill: #ef4444; /* Red */
 }
 
 .road-label.active {
-  fill: #ef4444;
-  font-size: 9.5px;
-  font-weight: 800;
+  fill: #dc2626; /* Darker Red for active blocker */
+  font-size: 12px;
 }
 
 /* Leaderboard Sidebar Grid */

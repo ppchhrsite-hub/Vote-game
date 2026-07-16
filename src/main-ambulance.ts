@@ -416,7 +416,14 @@ class AmbulanceDashboard {
       const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       label.setAttribute('x', lx.toString());
       label.setAttribute('y', ly.toString());
-      label.setAttribute('class', `road-label ${status}`);
+      
+      let labelClass = 'pending';
+      if (dept.percentage === 100) {
+        labelClass = 'cleared';
+      } else if (i === this.activeRoadblockIndex) {
+        labelClass = 'active';
+      }
+      label.setAttribute('class', `road-label ${labelClass}`);
       label.setAttribute('text-anchor', 'middle');
       label.setAttribute('font-size', '11.5px');
       label.setAttribute('font-weight', '800');
