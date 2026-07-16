@@ -295,6 +295,16 @@ class HospitalConstructionDashboard {
       }
     }
 
+    // 1.5 Toggle Stage 0 Blueprint Guidelines (Only visible at 0%)
+    const stage0Elements = document.querySelectorAll('.stage-0-element');
+    stage0Elements.forEach(el => {
+      if (stageNum === 0) {
+        el.classList.add('built');
+      } else {
+        el.classList.remove('built');
+      }
+    });
+
     // 2. Scaffolding/Cranes layer visible only when building (Stage 1 to 19)
     const scaffolding = document.getElementById('layer-scaffolding');
     if (scaffolding) {
