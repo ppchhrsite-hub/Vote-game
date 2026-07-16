@@ -16,15 +16,16 @@ class AmbulanceDashboard {
   private lastUpdate = '-';
   private isLoading = false;
 
-  // Ambulance position state (0.0 to 1.0 representing overall percentage progress)
-  private targetAmbulanceProgress = 0;
-  private currentAmbulanceProgress = 0;
+  // Ambulance position states
+  private targetAmbulanceX = 60; // target X coordinate
+  private currentAmbulanceX = 60; // float tweening to targetAmbulanceX
 
   // Currently blocking department index
   private activeRoadblockIndex = 0;
 
   // SVG Elements
-  private roadPath!: SVGPathElement;
+
+  private obstaclesGroup!: SVGGElement;
   private ambulance!: SVGGElement;
 
   // Sound Manager
@@ -46,7 +47,8 @@ class AmbulanceDashboard {
   }
 
   private initElements(): void {
-    this.roadPath = document.getElementById('road-path') as any;
+
+    this.obstaclesGroup = document.getElementById('obstacles-group') as any;
     this.ambulance = document.getElementById('ambulance') as any;
 
     if (this.ambulance) {
@@ -181,16 +183,25 @@ class AmbulanceDashboard {
         }
       }
 
-      // Update target progress for main ambulance (0.0 to 1.0)
-      const targetProg = this.overallPercentage / 100;
-      if (targetProg !== this.targetAmbulanceProgress) {
+      // Calculate target X position for ambulance:
+      // If all 100%, ambulance arrives at hospital (945).
+      // Otherwise, ambulance parks 28px behind the active roadblock car index.
+      const N = deptsArray.length;
+      let targetXVal = 945;
+      if (activeIdx < N) {
+        const activeCarX = 60 + (activeIdx * 860) / (N - 1);
+        targetXVal = activeCarX - 28;
+      }
+
+      if (targetXVal !== this.targetAmbulanceX) {
         this.playSirenBeep();
       }
-      this.targetAmbulanceProgress = targetProg;
+      this.targetAmbulanceX = targetXVal;
       this.activeRoadblockIndex = activeIdx;
 
       // Update UI panels
       this.updateHUD();
+      this.drawRoadMap();
       this.buildSidebar();
 
       // Hide loading screen
@@ -228,6 +239,129 @@ class AmbulanceDashboard {
     }
     
     if (syncTimeEl) syncTimeEl.textContent = this.lastUpdate;
+  }
+
+  // Draw civilian cars representing each department
+  private drawRoadMap(): void {
+    if (!this.obstaclesGroup) return;
+
+    this.obstaclesGroup.innerHTML = '';
+    const N = this.departments.length;
+    const colors = ['#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6', '#14b8a6', '#06b6d4', '#475569'];
+
+    this.departments.forEach((dept, i) => {
+      // Calculate coordinates:
+      // X is distributed evenly along the straight highway
+      const x = 60 + (i * 860) / (N - 1);
+      // Y moves from 68 (dead blocking center of ambulance driving lane)
+      // to 48 (pulled over to the top shoulder) based on progress
+      const y = 68 - (dept.percentage / 100) * 20;
+
+      // Status
+      let status: 'cleared' | 'blocked' | 'active' = 'blocked';
+      if (i < this.activeRoadblockIndex) {
+        status = 'cleared';
+      } else if (i === this.activeRoadblockIndex) {
+        status = 'active';
+      }
+
+      // Group
+      const carG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      carG.setAttribute('transform', `translate(${x}, ${y})`);
+      carG.setAttribute('class', `civilian-car ${status}`);
+      if (status === 'cleared') {
+        carG.setAttribute('opacity', '0.6');
+      }
+
+      // Tooltip title
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = `${i + 1}. ${dept.name} (${dept.percentage}% - ${status === 'cleared' ? 'หลบข้างทางแล้ว' : 'กำลังขวางทาง'})`;
+      carG.appendChild(title);
+
+      // Body shadow
+      const shadow = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      shadow.setAttribute('x', '-9');
+      shadow.setAttribute('y', '-5');
+      shadow.setAttribute('width', '18');
+      shadow.setAttribute('height', '10');
+      shadow.setAttribute('rx', '2.5');
+      shadow.setAttribute('fill', 'rgba(0,0,0,0.12)');
+      carG.appendChild(shadow);
+
+      // Car body
+      const body = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      body.setAttribute('x', '-8');
+      body.setAttribute('y', '-4');
+      body.setAttribute('width', '16');
+      body.setAttribute('height', '8');
+      body.setAttribute('rx', '2');
+      body.setAttribute('fill', status === 'cleared' ? '#cbd5e1' : colors[i % colors.length]);
+      body.setAttribute('stroke', '#475569');
+      body.setAttribute('stroke-width', '0.8');
+      carG.appendChild(body);
+
+      // Windshield glass
+      const glass = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      glass.setAttribute('x', '2');
+      glass.setAttribute('y', '-3');
+      glass.setAttribute('width', '3');
+      glass.setAttribute('height', '6');
+      glass.setAttribute('fill', '#e2e8f0');
+      carG.appendChild(glass);
+
+      // Windows
+      const winTop = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      winTop.setAttribute('x', '-4');
+      winTop.setAttribute('y', '-3');
+      winTop.setAttribute('width', '4');
+      winTop.setAttribute('height', '0.8');
+      winTop.setAttribute('fill', '#334155');
+      carG.appendChild(winTop);
+
+      const winBtm = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      winBtm.setAttribute('x', '-4');
+      winBtm.setAttribute('y', '2.2');
+      winBtm.setAttribute('width', '4');
+      winBtm.setAttribute('height', '0.8');
+      winBtm.setAttribute('fill', '#334155');
+      carG.appendChild(winBtm);
+
+      // Index label text on car
+      const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      label.setAttribute('x', '0');
+      label.setAttribute('y', '2');
+      label.setAttribute('font-size', '6.5');
+      label.setAttribute('font-weight', '800');
+      label.setAttribute('text-anchor', 'middle');
+      label.setAttribute('fill', status === 'cleared' ? '#64748b' : '#ffffff');
+      label.textContent = (i + 1).toString();
+      carG.appendChild(label);
+
+      // Flashing hazard blinkers if blocking (progress < 100%)
+      if (dept.percentage < 100) {
+        const hazardL = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        hazardL.setAttribute('cx', '-7');
+        hazardL.setAttribute('cy', '-3');
+        hazardL.setAttribute('r', '1.2');
+        hazardL.setAttribute('fill', '#fbbf24');
+        if (status === 'active') {
+          hazardL.setAttribute('id', 'siren-red'); // flash warning!
+        }
+        carG.appendChild(hazardL);
+
+        const hazardR = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        hazardR.setAttribute('cx', '-7');
+        hazardR.setAttribute('cy', '3');
+        hazardR.setAttribute('r', '1.2');
+        hazardR.setAttribute('fill', '#fbbf24');
+        if (status === 'active') {
+          hazardR.setAttribute('id', 'siren-blue'); // flash warning!
+        }
+        carG.appendChild(hazardR);
+      }
+
+      this.obstaclesGroup.appendChild(carG);
+    });
   }
 
   private buildSidebar(): void {
@@ -293,28 +427,22 @@ class AmbulanceDashboard {
   private animate = (): void => {
     requestAnimationFrame(this.animate);
 
-    if (!this.roadPath || !this.ambulance) return;
+    if (!this.ambulance) return;
 
-    const totalLength = this.roadPath.getTotalLength();
-
-    // Pull current progress towards target progress smoothly
+    // Pull current X progress towards target X smoothly
     const easeRate = 0.04;
-    const diff = this.targetAmbulanceProgress - this.currentAmbulanceProgress;
+    const diff = this.targetAmbulanceX - this.currentAmbulanceX;
     
-    if (Math.abs(diff) > 0.001) {
-      this.currentAmbulanceProgress += diff * easeRate;
+    if (Math.abs(diff) > 0.1) {
+      this.currentAmbulanceX += diff * easeRate;
     } else {
-      this.currentAmbulanceProgress = this.targetAmbulanceProgress;
+      this.currentAmbulanceX = this.targetAmbulanceX;
     }
-
-    // Get straight line coordinates
-    const dist = this.currentAmbulanceProgress * totalLength;
-    const pt = this.roadPath.getPointAtLength(dist);
 
     // Apply tiny engine vibration wiggle to ambulance for extra realism
     const wiggle = Math.sin(Date.now() * 0.06) * 0.4;
 
-    this.ambulance.setAttribute('transform', `translate(${pt.x}, ${pt.y + wiggle}) rotate(0)`);
+    this.ambulance.setAttribute('transform', `translate(${this.currentAmbulanceX}, ${68 + wiggle}) rotate(0)`);
     this.ambulance.style.opacity = '1';
   };
 
