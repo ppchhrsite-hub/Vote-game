@@ -277,43 +277,66 @@ class AmbulanceDashboard {
       gateGroup.setAttribute('class', `barrier-gate ${status}`);
       gateGroup.setAttribute('transform', `translate(${pt.x}, ${pt.y}) rotate(${angleDeg + 90})`);
 
-      // Draw roadblock bars
+      // Swing angle: 0 degrees is fully closed, -80 degrees is fully open (swung up)
+      const gateAngle = -80 * (dept.percentage / 100);
+      const gateOpacity = 1.0 - 0.75 * (dept.percentage / 100);
+      gateGroup.setAttribute('opacity', gateOpacity.toString());
+
+      // Base post at the left side of the road
       const postLeft = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      postLeft.setAttribute('cx', '-9');
+      postLeft.setAttribute('cx', '-12');
       postLeft.setAttribute('cy', '0');
-      postLeft.setAttribute('r', '2');
+      postLeft.setAttribute('r', '3.5');
       postLeft.setAttribute('fill', '#475569');
+      gateGroup.appendChild(postLeft);
 
-      const postRight = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      postRight.setAttribute('cx', '9');
-      postRight.setAttribute('cy', '0');
-      postRight.setAttribute('r', '2');
-      postRight.setAttribute('fill', '#475569');
+      // Swing arm group pivoting around (-12, 0)
+      const armGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      armGroup.setAttribute('transform', `translate(-12, 0) rotate(${gateAngle})`);
 
-      const bar = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      bar.setAttribute('x1', '-11');
-      bar.setAttribute('y1', '0');
-      bar.setAttribute('x2', '11');
-      bar.setAttribute('y2', '0');
-      bar.setAttribute('stroke-width', '3');
-      
-      if (status === 'cleared') {
-        bar.setAttribute('stroke', '#22c55e');
-      } else if (status === 'active') {
-        bar.setAttribute('stroke', '#ef4444');
-        bar.setAttribute('stroke-dasharray', '4 2'); // Striped
-      } else {
-        bar.setAttribute('stroke', '#ef4444');
+      // Orange gate bar
+      const barRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      barRect.setAttribute('x', '-2');
+      barRect.setAttribute('y', '-2.5');
+      barRect.setAttribute('width', '25');
+      barRect.setAttribute('height', '5');
+      barRect.setAttribute('rx', '1');
+      barRect.setAttribute('fill', '#f97316'); // Orange base
+      armGroup.appendChild(barRect);
+
+      // White stripes overlay (3)
+      for (const offset of [2, 10, 18]) {
+        const stripe = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        stripe.setAttribute('x', offset.toString());
+        stripe.setAttribute('y', '-2.5');
+        stripe.setAttribute('width', '4');
+        stripe.setAttribute('height', '5');
+        stripe.setAttribute('fill', '#ffffff');
+        armGroup.appendChild(stripe);
       }
 
-      gateGroup.appendChild(postLeft);
-      gateGroup.appendChild(postRight);
-      gateGroup.appendChild(bar);
+      // Warning warning light on top of the tip
+      const warnLight = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      warnLight.setAttribute('cx', '20');
+      warnLight.setAttribute('cy', '0');
+      warnLight.setAttribute('r', '3');
+      
+      if (status === 'active') {
+        warnLight.setAttribute('fill', '#ef4444');
+        warnLight.setAttribute('id', 'siren-red'); // will animate/flash red!
+      } else if (status === 'cleared') {
+        warnLight.setAttribute('fill', '#22c55e');
+      } else {
+        warnLight.setAttribute('fill', '#ef4444');
+      }
+      armGroup.appendChild(warnLight);
+
+      gateGroup.appendChild(armGroup);
       this.obstaclesGroup.appendChild(gateGroup);
 
       // 3. Label Text (alternating above and below path to avoid overlaps)
       const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      const yOffset = i % 2 === 0 ? -20 : 20;
+      const yOffset = i % 2 === 0 ? -22 : 22;
       label.setAttribute('x', pt.x.toString());
       label.setAttribute('y', (pt.y + yOffset).toString());
       label.setAttribute('class', `road-label ${status}`);
@@ -324,7 +347,7 @@ class AmbulanceDashboard {
       if (shortName.length > 8) {
         shortName = shortName.substring(0, 7) + '..';
       }
-      label.textContent = `${i + 1}.${shortName}`;
+      label.textContent = `${i + 1}.${shortName} (${dept.percentage}%)`;
       this.checkpointsGroup.appendChild(label);
     });
   }
