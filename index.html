@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-  <script type="module" crossorigin src="./assets/main-CW7lnvlN.js"></script>
+  <script type="module" crossorigin src="./assets/main-nKZ38RLM.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/SoundManager-v4TACuYl.js">
   <link rel="stylesheet" crossorigin href="./assets/main-7b8_UgIb.css">
 </head>
@@ -193,6 +193,8 @@
             <g id="layer-stage-2" class="build-layer">
               <!-- Left depth face solid white wall -->
               <polygon points="394,450 810,690 810,610 394,370" fill="#ffffff" stroke="#475569" stroke-width="1.5" />
+              <!-- Right main face solid white wall -->
+              <polygon points="810,690 966,600 966,520 810,610" fill="#ffffff" stroke="#475569" stroke-width="1.5" />
               <!-- Back wall block -->
               <polygon points="550,360 966,600 966,520 550,280" fill="#cbd5e1" opacity="0.3" />
             </g>
@@ -203,16 +205,25 @@
               <!-- 3D slab edge -->
               <polygon points="394,370 810,610 810,618 394,378" fill="#cbd5e1" stroke="#475569" stroke-width="1.2" />
               <polygon points="810,610 966,520 966,528 810,618" fill="#94a3b8" stroke="#475569" stroke-width="1.2" />
+              <!-- Blue slab edge band -->
+              <polygon points="810,610 966,520 966,526 810,616" fill="#1d4ed8" stroke="none" />
             </g>
 
-            <!-- Stage 4 (20%): Floor 2 pillars -->
-            <g id="layer-stage-4" class="build-layer" stroke="#475569" stroke-width="1" fill="#ffffff">
-              <rect x="806" y="530" width="8" height="80" />
-              <rect x="837" y="512.5" width="8" height="80" />
-              <rect x="868" y="495" width="8" height="80" />
-              <rect x="899" y="477.5" width="8" height="80" />
-              <rect x="930" y="460" width="8" height="80" />
-              <rect x="961" y="442.5" width="8" height="80" />
+            <!-- Stage 4 (20%): Floor 2 walls and pillars -->
+            <g id="layer-stage-4" class="build-layer">
+              <!-- Left depth face solid white wall -->
+              <polygon points="394,370 810,610 810,530 394,290" fill="#ffffff" stroke="#475569" stroke-width="1.5" />
+              <!-- Right main face solid white wall -->
+              <polygon points="810,610 966,520 966,440 810,530" fill="#ffffff" stroke="#475569" stroke-width="1.5" />
+              <!-- Pillars -->
+              <g stroke="#475569" stroke-width="1" fill="#ffffff">
+                <rect x="806" y="530" width="8" height="80" />
+                <rect x="837" y="512.5" width="8" height="80" />
+                <rect x="868" y="495" width="8" height="80" />
+                <rect x="899" y="477.5" width="8" height="80" />
+                <rect x="930" y="460" width="8" height="80" />
+                <rect x="961" y="442.5" width="8" height="80" />
+              </g>
             </g>
 
             <!-- Stage 5 (25%): Floor 3 concrete floor slab -->
@@ -221,16 +232,25 @@
               <!-- 3D slab edge -->
               <polygon points="394,290 810,530 810,538 394,298" fill="#cbd5e1" stroke="#475569" stroke-width="1.2" />
               <polygon points="810,530 966,440 966,448 810,538" fill="#94a3b8" stroke="#475569" stroke-width="1.2" />
+              <!-- Blue slab edge band -->
+              <polygon points="810,530 966,440 966,446 810,536" fill="#1d4ed8" stroke="none" />
             </g>
 
-            <!-- Stage 6 (30%): Floor 3 pillars -->
-            <g id="layer-stage-6" class="build-layer" stroke="#475569" stroke-width="1" fill="#ffffff">
-              <rect x="806" y="450" width="8" height="80" />
-              <rect x="837" y="432.5" width="8" height="80" />
-              <rect x="868" y="415" width="8" height="80" />
-              <rect x="899" y="397.5" width="8" height="80" />
-              <rect x="930" y="380" width="8" height="80" />
-              <rect x="961" y="362.5" width="8" height="80" />
+            <!-- Stage 6 (30%): Floor 3 walls and pillars -->
+            <g id="layer-stage-6" class="build-layer">
+              <!-- Left depth face solid white wall -->
+              <polygon points="394,290 810,530 810,450 394,210" fill="#ffffff" stroke="#475569" stroke-width="1.5" />
+              <!-- Right main face solid white wall -->
+              <polygon points="810,530 966,440 966,360 810,450" fill="#ffffff" stroke="#475569" stroke-width="1.5" />
+              <!-- Pillars -->
+              <g stroke="#475569" stroke-width="1" fill="#ffffff">
+                <rect x="806" y="450" width="8" height="80" />
+                <rect x="837" y="432.5" width="8" height="80" />
+                <rect x="868" y="415" width="8" height="80" />
+                <rect x="899" y="397.5" width="8" height="80" />
+                <rect x="930" y="380" width="8" height="80" />
+                <rect x="961" y="362.5" width="8" height="80" />
+              </g>
             </g>
 
             <!-- Stage 7 (35%): Floor 4 concrete floor slab -->
@@ -239,10 +259,16 @@
               <!-- 3D slab edge -->
               <polygon points="394,210 810,450 810,458 394,218" fill="#cbd5e1" stroke="#475569" stroke-width="1.2" />
               <polygon points="810,450 966,360 966,368 810,458" fill="#94a3b8" stroke="#475569" stroke-width="1.2" />
+              <!-- Blue slab edge band -->
+              <polygon points="810,450 966,360 966,366 810,456" fill="#1d4ed8" stroke="none" />
             </g>
 
-            <!-- Stage 8 (40%): Floor 4 pillars and ceiling roof slab -->
+            <!-- Stage 8 (40%): Floor 4 walls, pillars and ceiling roof slab -->
             <g id="layer-stage-8" class="build-layer">
+              <!-- Left depth face solid white wall -->
+              <polygon points="394,210 810,450 810,370 394,130" fill="#ffffff" stroke="#475569" stroke-width="1.5" />
+              <!-- Right main face solid white wall -->
+              <polygon points="810,450 966,360 966,280 810,370" fill="#ffffff" stroke="#475569" stroke-width="1.5" />
               <!-- Pillars -->
               <g stroke="#475569" stroke-width="1" fill="#ffffff">
                 <rect x="806" y="370" width="8" height="80" />
@@ -257,6 +283,8 @@
               <!-- 3D slab edge -->
               <polygon points="394,130 810,370 810,378 394,138" fill="#cbd5e1" stroke="#475569" stroke-width="1.2" />
               <polygon points="810,370 966,280 966,288 810,378" fill="#94a3b8" stroke="#475569" stroke-width="1.2" />
+              <!-- Roof blue band edge -->
+              <polygon points="810,370 966,280 966,286 810,376" fill="#1d4ed8" stroke="none" />
             </g>
 
             <!-- Stage 9 (45%): Rooftop elevator penthouse & safety railings -->
