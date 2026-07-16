@@ -263,7 +263,39 @@ class AmbulanceDashboard {
 
     const totalLength = this.roadPath.getTotalLength();
     const N = this.departments.length;
-    const colors = ['#0284c7', '#ea580c', '#e11d48', '#16a34a', '#7c3aed', '#db2777', '#0d9488', '#ca8a04', '#4f46e5', '#2563eb'];
+    const colors = [
+      '#0284c7', // 1  Sky Blue
+      '#ea580c', // 2  Orange
+      '#e11d48', // 3  Rose Red
+      '#16a34a', // 4  Green
+      '#7c3aed', // 5  Violet
+      '#db2777', // 6  Pink
+      '#0d9488', // 7  Teal
+      '#ca8a04', // 8  Amber
+      '#4f46e5', // 9  Indigo
+      '#dc2626', // 10 Red
+      '#059669', // 11 Emerald
+      '#d97706', // 12 Yellow-Orange
+      '#7e22ce', // 13 Purple
+      '#0369a1', // 14 Dark Blue
+      '#b45309', // 15 Brown-Amber
+      '#be185d', // 16 Deep Pink
+      '#047857', // 17 Dark Emerald
+      '#1d4ed8', // 18 Blue
+      '#9d174d', // 19 Dark Rose
+      '#065f46', // 20 Forest Green
+      '#6d28d9', // 21 Deep Violet
+      '#b91c1c', // 22 Dark Red
+      '#0e7490', // 23 Cyan-Blue
+      '#92400e', // 24 Dark Brown
+      '#4338ca', // 25 Deep Indigo
+      '#15803d', // 26 Medium Green
+      '#c2410c', // 27 Dark Orange
+      '#0f766e', // 28 Dark Teal
+      '#a21caf', // 29 Fuchsia
+      '#1e40af', // 30 Deep Blue
+      '#b45309', // 31 Warm Amber
+    ];
     const startMargin = 120;
     const endMargin = 120;
 
