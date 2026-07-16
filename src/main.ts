@@ -1,100 +1,356 @@
-import * as THREE from 'three';
-import { GameEngine } from './engine/GameEngine';
-import { InputManager } from './engine/InputManager';
-import { PlayerState } from './game/PlayerState';
-import { FarmGrid } from './game/FarmGrid';
-import { SoundManager } from './game/SoundManager';
-import { WeatherManager } from './game/WeatherManager';
-import { UIManager } from './ui/UIManager';
+import { SoundManager } from './SoundManager';
 
-class GameApp {
-  private engine: GameEngine;
-  private input: InputManager;
-  private state: PlayerState;
-  private grid: FarmGrid;
-  private sound: SoundManager;
-  private weather: WeatherManager;
-  private ui: UIManager;
+
+
+class HospitalConstructionDashboard {
+  private spreadsheetId = '1aLUltNZirflTIYn2-oqeGxpND1vXBW0fScddrDNvmJs';
+  private totalEmployees = 181;
+  private totalVoted = 0;
+  private overallPercentage = 0;
+  private lastUpdate = '-';
   
-  private clock: THREE.Clock;
+  private soundManager: SoundManager;
   private autoSyncIntervalId: any = null;
+  private isSimulationMode = false;
+  private lastActiveStage = -1;
+
+  // Construction Stage info mappings (0% to 100% in 5% steps)
+  private stagesInfo = [
+    { title: "เตรียมพื้นที่", sub: "เฟส 0: เคลียร์หน้าดินและเตรียมอุปกรณ์เขตก่อสร้าง" },                    // 0%  (Stage 0)
+    { title: "ฐานราก & เสาเข็มชั้น 1", sub: "เฟส 1: เทปูนฐานรากเสร็จสิ้น ก่อเสาโครงสร้างชั้นล่าง" },          // 5%  (Stage 1)
+    { title: "ผนังคอนกรีตชั้น 1", sub: "เฟส 2: ขึ้นผนังคอนกรีตบล็อกและเตรียมงานประตูทางเข้าชั้น 1" },          // 10% (Stage 2)
+    { title: "พื้นคอนกรีตชั้น 2", sub: "เฟส 3: เทคานและแผ่นพื้นคอนกรีตขึ้นรูปชั้น 2" },                    // 15% (Stage 3)
+    { title: "โครงสร้างเสาค้ำชั้น 2", sub: "เฟส 4: ตั้งเสาค้ำยันและคานหลักรับน้ำหนักของชั้น 2" },            // 20% (Stage 4)
+    { title: "พื้นคอนกรีตชั้น 3", sub: "เฟส 5: เทคานและแผ่นพื้นคอนกรีตขึ้นรูปชั้น 3" },                    // 25% (Stage 5)
+    { title: "โครงสร้างเสาค้ำชั้น 3", sub: "เฟส 6: ตั้งเสาค้ำยันและคานหลักรับน้ำหนักของชั้น 3" },            // 30% (Stage 6)
+    { title: "พื้นคอนกรีตชั้น 4", sub: "เฟส 7: เทคานและแผ่นพื้นคอนกรีตขึ้นรูปชั้น 4" },                    // 35% (Stage 7)
+    { title: "โครงเสาชั้น 4 & หลังคาดาดฟ้า", sub: "เฟส 8: ตั้งเสาชั้นบนสุดและหล่อแผ่นพื้นหลังคาดาดฟ้า" },    // 40% (Stage 8)
+    { title: "ห้องลิฟต์ดาดฟ้า & ราวกันตก", sub: "เฟส 9: ก่อห้องเครื่องลิฟต์และติดตั้งราวเหล็กกันตกดาดฟ้า" },  // 45% (Stage 9)
+    { title: "ติดตั้งกระจกอาคาร", sub: "เฟส 10: งานติดตั้งกระจกใสบลูสกายบนกรอบหน้าต่างรอบตึกทุกชั้น" },     // 50% (Stage 10)
+    { title: "ติดตั้งระแนงแต่งตึกสีน้ำเงิน", sub: "เฟส 11: ติดตั้งระแนงแนวตั้งสีน้ำเงินสวยงามเด่นชัดชั้นบน" },    // 55% (Stage 11)
+    { title: "โครงเสาป้ายยักษ์ทางเข้า", sub: "เฟส 12: ก่อสร้างโครงเสาป้ายโฆษณาทางเข้าฝั่งซ้ายของโครงการ" },   // 60% (Stage 12)
+    { title: "ติดตั้งหลังคากันสาดทางเข้า", sub: "เฟส 13: งานทำกันสาดล็อบบี้และติดตัวอักษรทางเข้าหลัก" },     // 65% (Stage 13)
+    { title: "ป้ายแผนกฉุกเฉินและทางเข้า", sub: "เฟส 14: ติดตั้งหลังคาสีแดงแผนกฉุกเฉินและป้าย Emergency" },   // 70% (Stage 14)
+    { title: "ตั้งโครงเหล็กป้ายดาดฟ้า", sub: "เฟส 15: ก่อสร้างโครงถักเหล็กและติดแผงป้ายสีน้ำเงินขนาดใหญ่บนดาดฟ้า" }, // 75% (Stage 15)
+    { title: "ติดตั้งโลโก้และชื่อตึกโรงพยาบาล", sub: "เฟส 16: ติดตราสัญลักษณ์ทางการแพทย์และตัวอักษรป้ายใหญ่ดาดฟ้า" }, // 80% (Stage 16)
+    { title: "ภูมิทัศน์ลานหน้าอาคาร & ป้อมยาม", sub: "เฟส 17: งานปูพื้นหญ้าเขียวหน้าตึกและติดตั้งห้องป้อมยามหน้าทางเข้า" }, // 85% (Stage 17)
+    { title: "สวนหย่อมไม้ยืนต้น", sub: "เฟส 18: งานปลูกต้นไม้ร่มรื่น สวนตกแต่งด้านซ้ายและขวาของอาคาร" },    // 90% (Stage 18)
+    { title: "ติดตั้งศาลพระภูมิ & น้ำพุ", sub: "เฟส 19: งานจัดตั้งศาลพระภูมิขาว และจัดทำอ่างน้ำพุกลางสนามหญ้า" }, // 95% (Stage 19)
+    { title: "อาคารเสร็จสมบูรณ์พร้อมฉลอง!", sub: "เฟส 20: เปิดไฟหน้าต่างตึกสว่างไสว เคลียร์เขตก่อสร้าง เฉลิมฉลองครบร้อยเปอร์เซ็นต์!" } // 100% (Stage 20)
+  ];
 
   constructor() {
-    this.clock = new THREE.Clock();
-
-    // 1. Core Systems
-    this.engine = new GameEngine('game-container');
-    this.sound = new SoundManager();
-    this.state = new PlayerState();
+    this.soundManager = new SoundManager();
+    this.bindEvents();
     
-    // 2. Game World
-    this.grid = new FarmGrid(this.engine);
-    this.input = new InputManager(this.engine);
-    this.weather = new WeatherManager(this.engine);
-    
-    // 3. Setup UI Overlay
-    this.ui = new UIManager(this.state, this.sound);
-    
-    // Set default active tool in input manager to water (inspect mode)
-    this.input.setActiveTool('water');
-
-    // 4. Connect interaction events
-    this.setupEventBindings();
-
-    // 5. Initial Sync and load loader
+    // Start by fetching live data
     this.syncElectionData().then(() => {
-      this.ui.hideLoader();
+      this.hideLoader();
     });
 
-    // 6. Set Auto-refresh interval (30 seconds)
+    // Start auto sync interval (every 30 seconds)
     this.startAutoSync(30000);
-
-    // 7. Start update tick
-    this.tick();
   }
 
-  private setupEventBindings(): void {
-    // Engine day/night & weather hooks -> UI updates
-    this.engine.setCallbacks(
-      (timeStr, dayStr) => this.ui.updateTime(timeStr, dayStr),
-      (weatherStr) => this.ui.updateWeather(weatherStr)
-    );
+  private bindEvents(): void {
+    // Sync Button
+    const btnSync = document.getElementById('btn-sync');
+    if (btnSync) {
+      btnSync.addEventListener('click', () => {
+        this.soundManager.playClick();
+        if (!this.isSimulationMode) {
+          this.syncElectionData();
+        } else {
+          this.createFloatingText("อยู่ในโหมดจำลอง (Manual Simulation) ❌", "float-info");
+        }
+      });
+    }
 
-    // Player State statistics updates -> UI HUD updates
-    this.state.registerCallbacks(
-      () => this.ui.updateHUD()
-    );
+    // Audio Mute toggle Button
+    const btnAudio = document.getElementById('btn-audio');
+    if (btnAudio) {
+      btnAudio.addEventListener('click', () => {
+        const isMuted = this.soundManager.toggleMute();
+        const span = btnAudio.querySelector('span');
+        if (span) {
+          span.textContent = isMuted ? 'volume_off' : 'volume_up';
+        }
+        this.soundManager.playClick();
+      });
+    }
 
-    // Connect Sync trigger from UI button
-    this.ui.registerSyncClick(async () => {
-      await this.syncElectionData();
-    });
+    // Simulator slider controls
+    const simToggle = document.getElementById('sim-mode-toggle') as HTMLInputElement;
+    const simSlider = document.getElementById('sim-percentage-slider') as HTMLInputElement;
+    const modeText = document.getElementById('mode-text');
 
-    // Connect list clicks to 3D focus
-    this.ui.registerDepartmentSelect((deptName) => {
-      this.focusOnDepartment(deptName);
-    });
+    if (simToggle && simSlider) {
+      simToggle.addEventListener('change', () => {
+        this.soundManager.playClick();
+        this.isSimulationMode = simToggle.checked;
+        
+        if (this.isSimulationMode) {
+          // Manual Simulation Mode active
+          simSlider.removeAttribute('disabled');
+          if (modeText) {
+            modeText.textContent = "โหมดทดสอบจำลอง (Simulator Mode)";
+            modeText.className = "mode-text manual";
+          }
+          this.stopAutoSync();
+          // Trigger slider update immediately
+          this.updateSimulationState(parseInt(simSlider.value));
+        } else {
+          // Return to Live Mode
+          simSlider.setAttribute('disabled', 'true');
+          if (modeText) {
+            modeText.textContent = "โหมดดึงข้อมูลอัตโนมัติ (Live Mode)";
+            modeText.className = "mode-text";
+          }
+          this.syncElectionData();
+          this.startAutoSync(30000);
+        }
+      });
 
-    // Handle 3D Grid interactions
-    this.input.onTileClick((event) => {
-      this.handleTileClick(event.x, event.z);
-    });
+      simSlider.addEventListener('input', () => {
+        if (this.isSimulationMode) {
+          this.updateSimulationState(parseInt(simSlider.value));
+        }
+      });
+    }
+  }
+
+  // Handle simulation slider values change
+  private updateSimulationState(pctValue: number): void {
+    const stage = Math.min(20, Math.floor(pctValue / 5));
+    
+    // Play sound on stage transition
+    if (stage !== this.lastActiveStage) {
+      if (stage === 20) {
+        this.soundManager.playCheer();
+      } else {
+        this.soundManager.playCoin();
+      }
+      this.lastActiveStage = stage;
+    }
+
+    // Update UI labels manually
+    const turnoutVal = document.getElementById('overall-percentage');
+    if (turnoutVal) {
+      turnoutVal.textContent = pctValue.toFixed(1) + '%';
+    }
+
+    const votedRatio = document.getElementById('voted-ratio');
+    if (votedRatio) {
+      const simulatedVoted = Math.round((pctValue / 100) * this.totalEmployees);
+      votedRatio.textContent = `${simulatedVoted} / ${this.totalEmployees}`;
+    }
+
+    // Render construction
+    this.renderStage(stage);
   }
 
   private async syncElectionData(): Promise<void> {
-    const success = await this.state.fetchLiveElectionData();
-    if (success) {
-      // Repopulate grid with new percentages
-      this.grid.updateDepartments(this.state.departments);
-      // Re-hook updated clickable meshes
-      this.input.setGridMeshes(this.grid.getClickableMeshes());
+    this.updateLoadingUI(true);
+
+    try {
+      // Fetch Employees Whitelist
+      const empUrl = `https://docs.google.com/spreadsheets/d/${this.spreadsheetId}/gviz/tq?tqx=out:csv&sheet=employee`;
+      const empRes = await fetch(empUrl);
+      if (!empRes.ok) throw new Error("Failed to fetch employee list");
+      const empCsv = await empRes.text();
+
+      // Fetch Votes data
+      const votesUrl = `https://docs.google.com/spreadsheets/d/${this.spreadsheetId}/gviz/tq?tqx=out:csv&sheet=Votes`;
+      const votesRes = await fetch(votesUrl);
+      if (!votesRes.ok) throw new Error("Failed to fetch votes list");
+      const votesCsv = await votesRes.text();
+
+      // Parse csv datasets
+      const employeesData = this.parseCSV(empCsv);
+      const votesData = this.parseCSV(votesCsv);
+
+      // Extract whitelist
+      const whitelist: Array<{ id: string; dept: string }> = [];
+      for (let i = 1; i < employeesData.length; i++) {
+        const row = employeesData[i];
+        if (row && row[0]) {
+          whitelist.push({
+            id: String(row[0]).trim(),
+            dept: String(row[3]).trim()
+          });
+        }
+      }
+
+      // Extract voted map
+      const votedIds: Record<string, boolean> = {};
+      for (let j = 1; j < votesData.length; j++) {
+        const row = votesData[j];
+        if (row && row[1]) {
+          const empId = String(row[1]).trim();
+          if (empId) {
+            votedIds[empId] = true;
+          }
+        }
+      }
+
+      // Aggregate voted count
+      let votedCount = 0;
+      whitelist.forEach(emp => {
+        if (votedIds[emp.id]) {
+          votedCount++;
+        }
+      });
+
+      this.totalVoted = votedCount;
+      this.overallPercentage = this.totalEmployees > 0 ? Math.min(Math.round((this.totalVoted / this.totalEmployees) * 100 * 10) / 10, 100) : 0;
+      this.lastUpdate = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' น.';
+
+      // Apply changes to UI
+      this.updateHUD();
       
-      this.ui.updateHUD();
-      this.sound.playCoin();
-      this.ui.showFloatingNotification('อัปเดตข้อมูลเสร็จสิ้น! 🔄', 'info');
-    } else {
-      this.ui.showFloatingNotification('การดึงข้อมูลล้มเหลว ❌', 'error');
+      const currentStage = Math.min(20, Math.floor(this.overallPercentage / 5));
+      if (currentStage !== this.lastActiveStage) {
+        if (currentStage === 20) {
+          this.soundManager.playCheer();
+        } else if (this.lastActiveStage !== -1) {
+          this.soundManager.playCoin();
+        }
+        this.lastActiveStage = currentStage;
+      }
+
+      this.renderStage(currentStage);
+      this.createFloatingText("ซิงก์ข้อมูลสร้างตึกสำเร็จ! 🏗️", "float-info");
+
+    } catch (e) {
+      console.error("Sync error:", e);
+      this.createFloatingText("การดึงข้อมูลล้มเหลว ❌", "float-info");
+    } finally {
+      this.updateLoadingUI(false);
     }
+  }
+
+  // Draw & Toggle SVG elements according to selected progress stage (0 - 20)
+  private renderStage(stageNum: number): void {
+    // 1. Toggle stages 1 to 20 built elements
+    for (let s = 1; s <= 20; s++) {
+      const layer = document.getElementById(`layer-stage-${s}`);
+      if (layer) {
+        if (s <= stageNum) {
+          layer.classList.add('built');
+        } else {
+          layer.classList.remove('built');
+        }
+      }
+    }
+
+    // 2. Scaffolding/Cranes layer visible only when building (Stage 1 to 19)
+    const scaffolding = document.getElementById('layer-scaffolding');
+    if (scaffolding) {
+      if (stageNum > 0 && stageNum < 20) {
+        scaffolding.classList.add('active');
+      } else {
+        scaffolding.classList.remove('active');
+      }
+    }
+
+    // 3. Stage 0 elements (zinc sheet protective fences) disappears at 100% (stage 20)
+    const stage0Fence = document.getElementById('layer-stage-0');
+    if (stage0Fence) {
+      if (stageNum < 20) {
+        stage0Fence.classList.remove('hidden');
+      } else {
+        stage0Fence.classList.add('hidden');
+      }
+    }
+
+    // 4. Totem details (always visible once totem is built at stage 12)
+    const totemDetails = document.getElementById('layer-totem-details');
+    if (totemDetails) {
+      if (stageNum >= 12) {
+        totemDetails.classList.add('built');
+      } else {
+        totemDetails.classList.remove('built');
+      }
+    }
+
+    // 5. Celebration overlay active only on completed building (stage 20)
+    const celebration = document.getElementById('layer-celebration');
+    const svgEl = document.getElementById('building-svg');
+    if (celebration && svgEl) {
+      if (stageNum === 20) {
+        celebration.classList.add('active');
+        svgEl.classList.add('completed');
+      } else {
+        celebration.classList.remove('active');
+        svgEl.classList.remove('completed');
+      }
+    }
+
+    // Update HUD Stage info labels
+    const stageInfo = this.stagesInfo[stageNum];
+    const stageText = document.getElementById('construction-stage-text');
+    const stageSub = document.getElementById('construction-stage-sub');
+    if (stageText && stageSub && stageInfo) {
+      stageText.textContent = stageInfo.title;
+      stageSub.textContent = stageInfo.sub;
+    }
+  }
+
+  private updateHUD(): void {
+    const overallPctEl = document.getElementById('overall-percentage');
+    if (overallPctEl) {
+      overallPctEl.textContent = this.overallPercentage.toFixed(1) + '%';
+    }
+
+    const votedRatioEl = document.getElementById('voted-ratio');
+    if (votedRatioEl) {
+      votedRatioEl.textContent = `${this.totalVoted} / ${this.totalEmployees}`;
+    }
+
+    const lastUpdateEl = document.getElementById('last-update-time');
+    if (lastUpdateEl) {
+      lastUpdateEl.textContent = this.lastUpdate;
+    }
+  }
+
+  // CSV parsing logic helper
+  private parseCSV(text: string): string[][] {
+    const result: string[][] = [];
+    let row: string[] = [];
+    let inQuotes = false;
+    let entry = '';
+
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      const nextChar = text[i + 1];
+
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          entry += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (char === ',' && !inQuotes) {
+        row.push(entry);
+        entry = '';
+      } else if ((char === '\n' || char === '\r') && !inQuotes) {
+        if (char === '\r' && nextChar === '\n') {
+          i++;
+        }
+        row.push(entry);
+        result.push(row);
+        row = [];
+        entry = '';
+      } else {
+        entry += char;
+      }
+    }
+    if (entry || row.length > 0) {
+      row.push(entry);
+      result.push(row);
+    }
+    return result;
   }
 
   private startAutoSync(ms: number): void {
@@ -102,95 +358,43 @@ class GameApp {
       clearInterval(this.autoSyncIntervalId);
     }
     this.autoSyncIntervalId = setInterval(async () => {
-      await this.state.fetchLiveElectionData();
-      this.grid.updateDepartments(this.state.departments);
-      this.input.setGridMeshes(this.grid.getClickableMeshes());
-      this.ui.updateHUD();
+      await this.syncElectionData();
     }, ms);
   }
 
-  private focusOnDepartment(deptName: string): void {
-    let targetCell = null;
-    for (let z = 0; z < this.grid.gridHeight; z++) {
-      for (let x = 0; x < this.grid.gridWidth; x++) {
-        const cell = this.grid.cells[z][x];
-        if (cell.deptName === deptName) {
-          targetCell = cell;
-          break;
-        }
-      }
-    }
-
-    if (targetCell) {
-      // Trigger water splash effect
-      this.grid.waterTile(targetCell.x, targetCell.z);
-      this.sound.playWater();
-
-      // Display floating turnout text above tile
-      const pos3d = new THREE.Vector3();
-      targetCell.tileMesh.getWorldPosition(pos3d);
-      pos3d.y += 0.9;
-      pos3d.project(this.engine.camera);
-
-      const screenX = (pos3d.x * 0.5 + 0.5) * window.innerWidth;
-      const screenY = (-(pos3d.y) * 0.5 + 0.5) * window.innerHeight;
-
-      const voted = targetCell.tileMesh.userData.voted || 0;
-      const total = targetCell.tileMesh.userData.total || 0;
-      const pct = targetCell.tileMesh.userData.percentage || 0;
-
-      this.ui.showFloatingText(`${deptName}: ${voted} / ${total} คน (${pct.toFixed(1)}%)`, screenX, screenY, 'water');
+  private stopAutoSync(): void {
+    if (this.autoSyncIntervalId) {
+      clearInterval(this.autoSyncIntervalId);
+      this.autoSyncIntervalId = null;
     }
   }
 
-  private handleTileClick(gx: number, gz: number): void {
-    const cell = this.grid.cells[gz][gx];
-    
-    // Project tile position to screen-space for floating texts
-    const pos3d = new THREE.Vector3();
-    cell.tileMesh.getWorldPosition(pos3d);
-    pos3d.y += 0.9; // float slightly above
-    pos3d.project(this.engine.camera);
-
-    const screenX = (pos3d.x * 0.5 + 0.5) * window.innerWidth;
-    const screenY = (-(pos3d.y) * 0.5 + 0.5) * window.innerHeight;
-
-    if (cell.deptName) {
-      // Trigger bounce & splash sound
-      this.grid.waterTile(gx, gz);
-      this.sound.playWater();
-
-      const voted = cell.tileMesh.userData.voted || 0;
-      const total = cell.tileMesh.userData.total || 0;
-      const pct = cell.tileMesh.userData.percentage || 0;
-
-      // Show float text
-      this.ui.showFloatingText(`${cell.deptName}: ${voted} / ${total} คน (${pct.toFixed(1)}%)`, screenX, screenY, 'water');
-      
-      // Select department card in sidebar list
-      this.ui.selectDepartmentInList(cell.deptName);
-    } else {
-      // Empty/decorative tile click
-      this.grid.waterTile(gx, gz);
-      this.sound.playClick();
-      this.ui.showFloatingText('ตกแต่ง 🌳', screenX, screenY, 'info');
+  private updateLoadingUI(show: boolean): void {
+    const progressEl = document.getElementById('loading-progress');
+    if (progressEl) {
+      progressEl.style.width = show ? '60%' : '100%';
     }
   }
 
-  private tick = (): void => {
-    requestAnimationFrame(this.tick);
+  private hideLoader(): void {
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+      loadingScreen.classList.add('hidden');
+    }
+  }
 
-    const delta = Math.min(this.clock.getDelta(), 0.1) || 0.016;
+  private createFloatingText(text: string, type: string): void {
+    const container = document.body;
+    const el = document.createElement('div');
+    el.className = `floating-text ${type}`;
+    el.textContent = text;
+    el.style.left = '50%';
+    el.style.top = '45%';
 
-    // 1. Update weather
-    this.weather.update(delta);
-
-    // 2. Update farm grid (sings, sways)
-    this.grid.update(delta, 1.0);
-  };
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 1500);
+  }
 }
 
-// Instantiate App
-window.addEventListener('DOMContentLoaded', () => {
-  new GameApp();
-});
+// Instantiate
+new HospitalConstructionDashboard();

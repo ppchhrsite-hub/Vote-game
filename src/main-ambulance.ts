@@ -1,4 +1,4 @@
-import { SoundManager } from './game/SoundManager';
+import { SoundManager } from './SoundManager';
 
 interface DepartmentData {
   name: string;
