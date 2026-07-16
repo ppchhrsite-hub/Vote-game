@@ -197,7 +197,7 @@ class AmbulanceDashboard {
         let targetDistVal = totalLength;
         if (activeIdx < N) {
           const activeCarDist = startMargin + (activeIdx * (totalLength - startMargin - endMargin)) / (N - 1);
-          targetDistVal = activeCarDist - 55;
+          targetDistVal = activeCarDist - 82;
         }
 
         if (targetDistVal !== this.targetAmbulanceDist) {
@@ -258,6 +258,7 @@ class AmbulanceDashboard {
 
     const totalLength = this.roadPath.getTotalLength();
     const N = this.departments.length;
+    const colors = ['#0284c7', '#ea580c', '#e11d48', '#16a34a', '#7c3aed', '#db2777', '#0d9488', '#ca8a04', '#4f46e5', '#2563eb'];
     const startMargin = 120;
     const endMargin = 120;
 
@@ -336,7 +337,7 @@ class AmbulanceDashboard {
       rect.setAttribute('width', '66');
       rect.setAttribute('height', '36');
       rect.setAttribute('rx', '5');
-      rect.setAttribute('fill', '#ffffff');
+      rect.setAttribute('fill', status === 'cleared' ? '#cbd5e1' : colors[i % colors.length]);
       rect.setAttribute('stroke', '#1e293b');
       rect.setAttribute('stroke-width', '1.8');
       carG.appendChild(rect);
@@ -358,12 +359,22 @@ class AmbulanceDashboard {
       glass.setAttribute('stroke-width', '1.2');
       carG.appendChild(glass);
 
-      // Department Number inside the car (larger text)
+      // White circular racing number plate badge on roof
+      const badge = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      badge.setAttribute('cx', '-10');
+      badge.setAttribute('cy', '0');
+      badge.setAttribute('r', '9');
+      badge.setAttribute('fill', '#ffffff');
+      badge.setAttribute('stroke', '#1e293b');
+      badge.setAttribute('stroke-width', '1');
+      carG.appendChild(badge);
+
+      // Department Number inside the car (centered inside badge)
       const carLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       carLabel.setAttribute('x', '-10');
-      carLabel.setAttribute('y', '5');
-      carLabel.setAttribute('font-size', '15');
-      carLabel.setAttribute('font-weight', '800');
+      carLabel.setAttribute('y', '4');
+      carLabel.setAttribute('font-size', '12');
+      carLabel.setAttribute('font-weight', '900');
       carLabel.setAttribute('text-anchor', 'middle');
       carLabel.setAttribute('fill', '#1e293b');
       carLabel.textContent = (i + 1).toString();
