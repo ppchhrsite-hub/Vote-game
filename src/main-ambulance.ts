@@ -425,15 +425,18 @@ class AmbulanceDashboard {
       }
       label.setAttribute('class', `road-label ${labelClass}`);
       label.setAttribute('text-anchor', 'middle');
-      label.setAttribute('font-size', '11.5px');
       label.setAttribute('font-weight', '800');
       
-      // Shorten name if too long for map display
+      // Shorten name if too long for map display to prevent overlap
       let shortName = dept.name;
-      if (shortName.length > 9) {
-        shortName = shortName.substring(0, 8) + '..';
+      if (shortName.length > 6) {
+        shortName = shortName.substring(0, 5) + '..';
       }
-      label.textContent = `${i + 1}.${shortName} (${dept.percentage}%)`;
+
+      label.innerHTML = `
+        <tspan x="${lx}" dy="-3">${i + 1}.${shortName}</tspan>
+        <tspan x="${lx}" dy="9.5">(${dept.percentage}%)</tspan>
+      `;
       this.checkpointsGroup.appendChild(label);
     });
   }
