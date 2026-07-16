@@ -340,7 +340,7 @@ class AmbulanceDashboard {
       rect.setAttribute('width', '50');
       rect.setAttribute('height', '26');
       rect.setAttribute('rx', '4');
-      rect.setAttribute('fill', status === 'cleared' ? '#cbd5e1' : colors[i % colors.length]);
+      rect.setAttribute('fill', colors[i % colors.length]);
       rect.setAttribute('stroke', '#1e293b');
       rect.setAttribute('stroke-width', '1.8');
       carG.appendChild(rect);
