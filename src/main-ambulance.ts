@@ -187,17 +187,17 @@ class AmbulanceDashboard {
 
       // Calculate target distance for ambulance on winding road:
       // If all 100%, ambulance arrives at hospital (totalLength).
-      // Otherwise, ambulance parks 26px behind the active roadblock car distance.
+      // Otherwise, ambulance parks 42px behind the active roadblock car distance.
       if (this.roadPath) {
         const totalLength = this.roadPath.getTotalLength();
         const N = deptsArray.length;
-        const startMargin = 0.06;
-        const endMargin = 0.88;
+        const startMargin = 120;
+        const endMargin = 120;
 
         let targetDistVal = totalLength;
         if (activeIdx < N) {
-          const activeCarDist = totalLength * (startMargin + (activeIdx * (endMargin - startMargin)) / (N - 1));
-          targetDistVal = activeCarDist - 26;
+          const activeCarDist = startMargin + (activeIdx * (totalLength - startMargin - endMargin)) / (N - 1);
+          targetDistVal = activeCarDist - 42;
         }
 
         if (targetDistVal !== this.targetAmbulanceDist) {
@@ -258,29 +258,36 @@ class AmbulanceDashboard {
 
     const totalLength = this.roadPath.getTotalLength();
     const N = this.departments.length;
-    const colors = ['#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6', '#14b8a6', '#06b6d4', '#475569'];
-    const startMargin = 0.06;
-    const endMargin = 0.88;
+    const startMargin = 120;
+    const endMargin = 120;
 
     this.departments.forEach((dept, i) => {
       // Calculate path distance for checkpoint i
-      const dist = totalLength * (startMargin + (i * (endMargin - startMargin)) / (N - 1));
+      const dist = startMargin + (i * (totalLength - startMargin - endMargin)) / (N - 1);
       const pt = this.roadPath.getPointAtLength(dist);
 
       // Get road direction angle at this point
       const ptAhead = this.roadPath.getPointAtLength(Math.min(dist + 2, totalLength));
       const dx = ptAhead.x - pt.x;
       const dy = ptAhead.y - pt.y;
-      const len = Math.sqrt(dx * dx + dy * dy) || 1;
       const angleRad = Math.atan2(dy, dx);
       const angleDeg = (angleRad * 180) / Math.PI;
 
-      // Normal perpendicular vector (pointing to the upper side of the road)
-      const nx = -dy / len;
-      const ny = dx / len;
+      // Normal perpendicular vectors matching the drawing:
+      // Horizontal segment: force normal down (0, 1)
+      // Vertical segment: force normal left (-1, 0)
+      let nx = 0;
+      let ny = 0;
+      if (Math.abs(dy) < Math.abs(dx)) {
+        nx = 0;
+        ny = 1;
+      } else {
+        nx = -1;
+        ny = 0;
+      }
 
-      // Calculate pull-over offset (0 at 0% progress, 15px off-road at 100%)
-      const offset = (dept.percentage / 100) * 15;
+      // Calculate pull-over offset (0 at 0% progress, 22px off-road at 100%)
+      const offset = (dept.percentage / 100) * 22;
       const cx = pt.x + nx * offset;
       const cy = pt.y + ny * offset;
 
@@ -292,7 +299,7 @@ class AmbulanceDashboard {
         status = 'active';
       }
 
-      // 1. Draw Civilian Car
+      // 1. Draw Civilian Car (White box with a black stripe, matching user drawing)
       const carG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       carG.setAttribute('transform', `translate(${cx}, ${cy}) rotate(${angleDeg})`);
       carG.setAttribute('class', `civilian-car ${status}`);
@@ -305,99 +312,61 @@ class AmbulanceDashboard {
       title.textContent = `${i + 1}. ${dept.name} (${dept.percentage}% - ${status === 'cleared' ? 'หลบข้างทางแล้ว' : 'กำลังขวางทาง'})`;
       carG.appendChild(title);
 
-      // Body shadow
-      const shadow = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      shadow.setAttribute('x', '-9');
-      shadow.setAttribute('y', '-5');
-      shadow.setAttribute('width', '18');
-      shadow.setAttribute('height', '10');
-      shadow.setAttribute('rx', '2.5');
-      shadow.setAttribute('fill', 'rgba(0,0,0,0.12)');
-      carG.appendChild(shadow);
+      // Main rectangle (White box with black border)
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', '-25');
+      rect.setAttribute('y', '-14');
+      rect.setAttribute('width', '50');
+      rect.setAttribute('height', '28');
+      rect.setAttribute('fill', '#ffffff');
+      rect.setAttribute('stroke', '#000000');
+      rect.setAttribute('stroke-width', '1.5');
+      carG.appendChild(rect);
 
-      // Car body
-      const body = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      body.setAttribute('x', '-8');
-      body.setAttribute('y', '-4');
-      body.setAttribute('width', '16');
-      body.setAttribute('height', '8');
-      body.setAttribute('rx', '2');
-      body.setAttribute('fill', status === 'cleared' ? '#cbd5e1' : colors[i % colors.length]);
-      body.setAttribute('stroke', '#475569');
-      body.setAttribute('stroke-width', '0.8');
-      carG.appendChild(body);
+      // Black vertical stripe (near the front of the car)
+      const stripe = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      stripe.setAttribute('x', '10');
+      stripe.setAttribute('y', '-14');
+      stripe.setAttribute('width', '6');
+      stripe.setAttribute('height', '28');
+      stripe.setAttribute('fill', '#000000');
+      carG.appendChild(stripe);
 
-      // Windshield glass
-      const glass = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      glass.setAttribute('x', '2');
-      glass.setAttribute('y', '-3');
-      glass.setAttribute('width', '3');
-      glass.setAttribute('height', '6');
-      glass.setAttribute('fill', '#e2e8f0');
-      carG.appendChild(glass);
-
-      // Windows
-      const winTop = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      winTop.setAttribute('x', '-4');
-      winTop.setAttribute('y', '-3.2');
-      winTop.setAttribute('width', '4');
-      winTop.setAttribute('height', '0.8');
-      winTop.setAttribute('fill', '#334155');
-      carG.appendChild(winTop);
-
-      const winBtm = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      winBtm.setAttribute('x', '-4');
-      winBtm.setAttribute('y', '2.4');
-      winBtm.setAttribute('width', '4');
-      winBtm.setAttribute('height', '0.8');
-      winBtm.setAttribute('fill', '#334155');
-      carG.appendChild(winBtm);
-
-      // Index label text on car
+      // Department Number inside the car
       const carLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      carLabel.setAttribute('x', '0');
-      carLabel.setAttribute('y', '2.2');
-      carLabel.setAttribute('font-size', '6.5');
+      carLabel.setAttribute('x', '-5');
+      carLabel.setAttribute('y', '5');
+      carLabel.setAttribute('font-size', '13');
       carLabel.setAttribute('font-weight', '800');
       carLabel.setAttribute('text-anchor', 'middle');
-      carLabel.setAttribute('fill', status === 'cleared' ? '#64748b' : '#ffffff');
+      carLabel.setAttribute('fill', '#000000');
       carLabel.textContent = (i + 1).toString();
       carG.appendChild(carLabel);
 
-      // Flashing hazard blinkers if blocking (progress < 100%)
-      if (dept.percentage < 100) {
-        const hazardL = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        hazardL.setAttribute('cx', '-7');
-        hazardL.setAttribute('cy', '-3');
-        hazardL.setAttribute('r', '1.2');
-        hazardL.setAttribute('fill', '#fbbf24');
-        if (status === 'active') {
-          hazardL.setAttribute('id', 'siren-red'); // flash warning!
-        }
-        carG.appendChild(hazardL);
-
-        const hazardR = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        hazardR.setAttribute('cx', '-7');
-        hazardR.setAttribute('cy', '3');
-        hazardR.setAttribute('r', '1.2');
-        hazardR.setAttribute('fill', '#fbbf24');
-        if (status === 'active') {
-          hazardR.setAttribute('id', 'siren-blue'); // flash warning!
-        }
-        carG.appendChild(hazardR);
+      // Flashing alert dot if active roadblock
+      if (status === 'active') {
+        const siren = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        siren.setAttribute('cx', '13');
+        siren.setAttribute('cy', '0');
+        siren.setAttribute('r', '5');
+        siren.setAttribute('fill', '#ef4444');
+        siren.setAttribute('id', 'siren-red'); // flashing red alert siren!
+        carG.appendChild(siren);
       }
 
       this.obstaclesGroup.appendChild(carG);
 
-      // 2. Draw Checkpoint Label opposite to the pull-over shoulder (Y-offset is -22px from road center)
-      const lx = pt.x - nx * 22;
-      const ly = pt.y - ny * 22;
+      // 2. Draw Checkpoint Label opposite to the pull-over shoulder (Y-offset is -40px or X-offset is 40px)
+      const lx = pt.x - nx * 40;
+      const ly = pt.y - ny * 40;
 
       const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       label.setAttribute('x', lx.toString());
       label.setAttribute('y', ly.toString());
       label.setAttribute('class', `road-label ${status}`);
       label.setAttribute('text-anchor', 'middle');
+      label.setAttribute('font-size', '10px');
+      label.setAttribute('font-weight', '800');
       
       // Shorten name if too long for map display
       let shortName = dept.name;
