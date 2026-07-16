@@ -187,7 +187,7 @@ class AmbulanceDashboard {
 
       // Calculate target distance for ambulance on winding road:
       // If all 100%, ambulance arrives at hospital (totalLength).
-      // Otherwise, ambulance parks 42px behind the active roadblock car distance.
+      // Otherwise, ambulance parks 55px behind the active roadblock car distance.
       if (this.roadPath) {
         const totalLength = this.roadPath.getTotalLength();
         const N = deptsArray.length;
@@ -197,7 +197,7 @@ class AmbulanceDashboard {
         let targetDistVal = totalLength;
         if (activeIdx < N) {
           const activeCarDist = startMargin + (activeIdx * (totalLength - startMargin - endMargin)) / (N - 1);
-          targetDistVal = activeCarDist - 42;
+          targetDistVal = activeCarDist - 55;
         }
 
         if (targetDistVal !== this.targetAmbulanceDist) {
@@ -286,8 +286,8 @@ class AmbulanceDashboard {
         ny = 0;
       }
 
-      // Calculate pull-over offset (0 at 0% progress, 22px off-road at 100%)
-      const offset = (dept.percentage / 100) * 22;
+      // Calculate pull-over offset (0 at 0% progress, 26px off-road at 100%)
+      const offset = (dept.percentage / 100) * 26;
       const cx = pt.x + nx * offset;
       const cy = pt.y + ny * offset;
 
@@ -299,7 +299,7 @@ class AmbulanceDashboard {
         status = 'active';
       }
 
-      // 1. Draw Civilian Car (White box with a black stripe, matching user drawing)
+      // 1. Draw Civilian Car (White box with a black stripe, matching user drawing - expanded size)
       const carG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       carG.setAttribute('transform', `translate(${cx}, ${cy}) rotate(${angleDeg})`);
       carG.setAttribute('class', `civilian-car ${status}`);
@@ -314,10 +314,10 @@ class AmbulanceDashboard {
 
       // Main rectangle (White box with black border)
       const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      rect.setAttribute('x', '-25');
-      rect.setAttribute('y', '-14');
-      rect.setAttribute('width', '50');
-      rect.setAttribute('height', '28');
+      rect.setAttribute('x', '-33');
+      rect.setAttribute('y', '-18');
+      rect.setAttribute('width', '66');
+      rect.setAttribute('height', '36');
       rect.setAttribute('fill', '#ffffff');
       rect.setAttribute('stroke', '#000000');
       rect.setAttribute('stroke-width', '1.5');
@@ -325,18 +325,18 @@ class AmbulanceDashboard {
 
       // Black vertical stripe (near the front of the car)
       const stripe = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      stripe.setAttribute('x', '10');
-      stripe.setAttribute('y', '-14');
-      stripe.setAttribute('width', '6');
-      stripe.setAttribute('height', '28');
+      stripe.setAttribute('x', '15');
+      stripe.setAttribute('y', '-18');
+      stripe.setAttribute('width', '8');
+      stripe.setAttribute('height', '36');
       stripe.setAttribute('fill', '#000000');
       carG.appendChild(stripe);
 
-      // Department Number inside the car
+      // Department Number inside the car (larger text)
       const carLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      carLabel.setAttribute('x', '-5');
-      carLabel.setAttribute('y', '5');
-      carLabel.setAttribute('font-size', '13');
+      carLabel.setAttribute('x', '-8');
+      carLabel.setAttribute('y', '6');
+      carLabel.setAttribute('font-size', '17');
       carLabel.setAttribute('font-weight', '800');
       carLabel.setAttribute('text-anchor', 'middle');
       carLabel.setAttribute('fill', '#000000');
@@ -346,9 +346,9 @@ class AmbulanceDashboard {
       // Flashing alert dot if active roadblock
       if (status === 'active') {
         const siren = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        siren.setAttribute('cx', '13');
+        siren.setAttribute('cx', '19');
         siren.setAttribute('cy', '0');
-        siren.setAttribute('r', '5');
+        siren.setAttribute('r', '6');
         siren.setAttribute('fill', '#ef4444');
         siren.setAttribute('id', 'siren-red'); // flashing red alert siren!
         carG.appendChild(siren);
@@ -356,22 +356,22 @@ class AmbulanceDashboard {
 
       this.obstaclesGroup.appendChild(carG);
 
-      // 2. Draw Checkpoint Label opposite to the pull-over shoulder (Y-offset is -40px or X-offset is 40px)
-      const lx = pt.x - nx * 40;
-      const ly = pt.y - ny * 40;
+      // 2. Draw Checkpoint Label opposite to the pull-over shoulder (Y-offset is -45px or X-offset is 45px)
+      const lx = pt.x - nx * 45;
+      const ly = pt.y - ny * 45;
 
       const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       label.setAttribute('x', lx.toString());
       label.setAttribute('y', ly.toString());
       label.setAttribute('class', `road-label ${status}`);
       label.setAttribute('text-anchor', 'middle');
-      label.setAttribute('font-size', '10px');
+      label.setAttribute('font-size', '11.5px');
       label.setAttribute('font-weight', '800');
       
       // Shorten name if too long for map display
       let shortName = dept.name;
-      if (shortName.length > 8) {
-        shortName = shortName.substring(0, 7) + '..';
+      if (shortName.length > 9) {
+        shortName = shortName.substring(0, 8) + '..';
       }
       label.textContent = `${i + 1}.${shortName} (${dept.percentage}%)`;
       this.checkpointsGroup.appendChild(label);
