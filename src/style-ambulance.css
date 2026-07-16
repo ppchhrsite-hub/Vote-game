@@ -694,3 +694,51 @@ body {
   user-select: none;
 }
 
+/* Map Interactive Hover Tooltip */
+.map-tooltip {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  border-radius: 12px;
+  padding: 0.65rem 0.85rem;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+  z-index: 10000;
+  pointer-events: none;
+  transition: opacity 0.15s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.15s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transform: translate(-50%, -100%) scale(0.95);
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 170px;
+  font-family: var(--font-family);
+}
+.map-tooltip.visible {
+  opacity: 1;
+  transform: translate(-50%, -100%) scale(1);
+}
+.map-tooltip-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #0f172a;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding-bottom: 0.15rem;
+  margin-bottom: 0.15rem;
+}
+.map-tooltip-stat {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+}
+.map-tooltip-stat b {
+  font-weight: 800;
+  color: #0f172a;
+}
+.map-tooltip-status {
+  font-size: 0.75rem;
+  font-weight: 800;
+  margin-top: 0.15rem;
+}
+
+

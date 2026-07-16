@@ -86,6 +86,11 @@ class AmbulanceDashboard {
     document.addEventListener('click', () => {
       this.soundManager.playClick();
     }, { once: true });
+
+    // Click anywhere to dismiss tooltip
+    document.addEventListener('click', () => {
+      this.hideTooltip();
+    });
   }
 
   private async fetchData(): Promise<void> {
@@ -304,9 +309,7 @@ class AmbulanceDashboard {
       const carG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       carG.setAttribute('transform', `translate(${cx}, ${cy}) rotate(${angleDeg})`);
       carG.setAttribute('class', `civilian-car ${status}`);
-      if (status === 'cleared') {
-        carG.setAttribute('opacity', '0.65');
-      }
+      carG.style.cursor = 'pointer';
 
       // Tooltip title
       const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
@@ -390,6 +393,19 @@ class AmbulanceDashboard {
         siren.setAttribute('id', 'siren-red'); // flashing red alert siren!
         carG.appendChild(siren);
       }
+
+      // Interactive tooltip event listeners
+      carG.addEventListener('mouseenter', () => {
+        this.showTooltip(dept, i, carG);
+      });
+      carG.addEventListener('mouseleave', () => {
+        this.hideTooltip();
+      });
+      carG.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent document click from hiding tooltip immediately
+        this.soundManager.playClick();
+        this.showTooltip(dept, i, carG);
+      });
 
       this.obstaclesGroup.appendChild(carG);
 
@@ -531,6 +547,41 @@ class AmbulanceDashboard {
 
     container.appendChild(el);
     setTimeout(() => el.remove(), 1500);
+  }
+
+  // Interactive Map HTML Tooltip Helper methods
+  private showTooltip(dept: DepartmentData, index: number, targetElement: SVGElement): void {
+    let tooltip = document.getElementById('map-tooltip');
+    if (!tooltip) {
+      tooltip = document.createElement('div');
+      tooltip.id = 'map-tooltip';
+      tooltip.className = 'map-tooltip';
+      document.body.appendChild(tooltip);
+    }
+
+    tooltip.innerHTML = `
+      <div class="map-tooltip-title">${index + 1}. ${dept.name}</div>
+      <div class="map-tooltip-stat">ใช้สิทธิ์: <b>${dept.voted} / ${dept.total} คน</b></div>
+      <div class="map-tooltip-stat">คิดเป็น: <b style="color: var(--color-primary-light);">${dept.percentage}%</b></div>
+      <div class="map-tooltip-status" style="color: ${dept.percentage === 100 ? '#16a34a' : '#ea580c'}">
+        ${dept.percentage === 100 ? '🟢 หลบข้างทางแล้ว' : '🔴 กำลังจอดขวางทางอยู่'}
+      </div>
+    `;
+
+    const rect = targetElement.getBoundingClientRect();
+    const x = rect.left + rect.width / 2 + window.scrollX;
+    const y = rect.top + window.scrollY - 8;
+
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top = `${y}px`;
+    tooltip.classList.add('visible');
+  }
+
+  private hideTooltip(): void {
+    const tooltip = document.getElementById('map-tooltip');
+    if (tooltip) {
+      tooltip.classList.remove('visible');
+    }
   }
 }
 
