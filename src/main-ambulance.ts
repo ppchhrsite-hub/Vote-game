@@ -441,9 +441,20 @@ class AmbulanceDashboard {
 
       this.obstaclesGroup.appendChild(carG);
 
-      // 2. Draw Checkpoint Label opposite to the pull-over shoulder (Y-offset is -45px or X-offset is 45px)
-      const lx = pt.x - nx * 45;
-      const ly = pt.y - ny * 45;
+      // 2. Draw Checkpoint Label
+      let lx = pt.x;
+      let ly = pt.y;
+      
+      if (Math.abs(dy) >= Math.abs(dx)) {
+        // Vertical segment: place labels outside the loop to prevent overlap
+        const isLeftConnector = pt.x < 500;
+        lx = isLeftConnector ? pt.x - 45 : pt.x + 45;
+        ly = pt.y;
+      } else {
+        // Horizontal segment: opposite of the shoulder offset
+        lx = pt.x - nx * 45;
+        ly = pt.y - ny * 45;
+      }
 
       const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       label.setAttribute('x', lx.toString());
