@@ -16,16 +16,17 @@ class AmbulanceDashboard {
   private lastUpdate = '-';
   private isLoading = false;
 
-  // Ambulance position states
-  private targetAmbulanceX = 60; // target X coordinate
-  private currentAmbulanceX = 60; // float tweening to targetAmbulanceX
+  // Ambulance position states (expressed in path distance units)
+  private targetAmbulanceDist = 50;
+  private currentAmbulanceDist = 50;
 
   // Currently blocking department index
   private activeRoadblockIndex = 0;
 
   // SVG Elements
-
+  private roadPath!: SVGPathElement;
   private obstaclesGroup!: SVGGElement;
+  private checkpointsGroup!: SVGGElement;
   private ambulance!: SVGGElement;
 
   // Sound Manager
@@ -47,8 +48,9 @@ class AmbulanceDashboard {
   }
 
   private initElements(): void {
-
+    this.roadPath = document.getElementById('road-path') as any;
     this.obstaclesGroup = document.getElementById('obstacles-group') as any;
+    this.checkpointsGroup = document.getElementById('checkpoints-group') as any;
     this.ambulance = document.getElementById('ambulance') as any;
 
     if (this.ambulance) {
@@ -183,26 +185,32 @@ class AmbulanceDashboard {
         }
       }
 
-      // Calculate target X position for ambulance:
-      // If all 100%, ambulance arrives at hospital (945).
-      // Otherwise, ambulance parks 28px behind the active roadblock car index.
-      const N = deptsArray.length;
-      let targetXVal = 945;
-      if (activeIdx < N) {
-        const activeCarX = 60 + (activeIdx * 860) / (N - 1);
-        targetXVal = activeCarX - 28;
-      }
+      // Calculate target distance for ambulance on winding road:
+      // If all 100%, ambulance arrives at hospital (totalLength).
+      // Otherwise, ambulance parks 26px behind the active roadblock car distance.
+      if (this.roadPath) {
+        const totalLength = this.roadPath.getTotalLength();
+        const N = deptsArray.length;
+        const startMargin = 0.06;
+        const endMargin = 0.88;
 
-      if (targetXVal !== this.targetAmbulanceX) {
-        this.playSirenBeep();
+        let targetDistVal = totalLength;
+        if (activeIdx < N) {
+          const activeCarDist = totalLength * (startMargin + (activeIdx * (endMargin - startMargin)) / (N - 1));
+          targetDistVal = activeCarDist - 26;
+        }
+
+        if (targetDistVal !== this.targetAmbulanceDist) {
+          this.playSirenBeep();
+        }
+        this.targetAmbulanceDist = targetDistVal;
       }
-      this.targetAmbulanceX = targetXVal;
+      
       this.activeRoadblockIndex = activeIdx;
 
       // Update UI panels
       this.updateHUD();
       this.drawRoadMap();
-      this.buildSidebar();
 
       // Hide loading screen
       const loadingScreen = document.getElementById('loading-screen');
@@ -241,21 +249,40 @@ class AmbulanceDashboard {
     if (syncTimeEl) syncTimeEl.textContent = this.lastUpdate;
   }
 
-  // Draw civilian cars representing each department
+  // Draw civilian cars representing each department along the winding road
   private drawRoadMap(): void {
-    if (!this.obstaclesGroup) return;
+    if (!this.obstaclesGroup || !this.checkpointsGroup || !this.roadPath) return;
 
     this.obstaclesGroup.innerHTML = '';
+    this.checkpointsGroup.innerHTML = '';
+
+    const totalLength = this.roadPath.getTotalLength();
     const N = this.departments.length;
     const colors = ['#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6', '#14b8a6', '#06b6d4', '#475569'];
+    const startMargin = 0.06;
+    const endMargin = 0.88;
 
     this.departments.forEach((dept, i) => {
-      // Calculate coordinates:
-      // X is distributed evenly along the straight highway
-      const x = 60 + (i * 860) / (N - 1);
-      // Y moves from 68 (dead blocking center of ambulance driving lane)
-      // to 48 (pulled over to the top shoulder) based on progress
-      const y = 68 - (dept.percentage / 100) * 20;
+      // Calculate path distance for checkpoint i
+      const dist = totalLength * (startMargin + (i * (endMargin - startMargin)) / (N - 1));
+      const pt = this.roadPath.getPointAtLength(dist);
+
+      // Get road direction angle at this point
+      const ptAhead = this.roadPath.getPointAtLength(Math.min(dist + 2, totalLength));
+      const dx = ptAhead.x - pt.x;
+      const dy = ptAhead.y - pt.y;
+      const len = Math.sqrt(dx * dx + dy * dy) || 1;
+      const angleRad = Math.atan2(dy, dx);
+      const angleDeg = (angleRad * 180) / Math.PI;
+
+      // Normal perpendicular vector (pointing to the upper side of the road)
+      const nx = -dy / len;
+      const ny = dx / len;
+
+      // Calculate pull-over offset (0 at 0% progress, 15px off-road at 100%)
+      const offset = (dept.percentage / 100) * 15;
+      const cx = pt.x + nx * offset;
+      const cy = pt.y + ny * offset;
 
       // Status
       let status: 'cleared' | 'blocked' | 'active' = 'blocked';
@@ -265,12 +292,12 @@ class AmbulanceDashboard {
         status = 'active';
       }
 
-      // Group
+      // 1. Draw Civilian Car
       const carG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      carG.setAttribute('transform', `translate(${x}, ${y})`);
+      carG.setAttribute('transform', `translate(${cx}, ${cy}) rotate(${angleDeg})`);
       carG.setAttribute('class', `civilian-car ${status}`);
       if (status === 'cleared') {
-        carG.setAttribute('opacity', '0.6');
+        carG.setAttribute('opacity', '0.65');
       }
 
       // Tooltip title
@@ -312,7 +339,7 @@ class AmbulanceDashboard {
       // Windows
       const winTop = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       winTop.setAttribute('x', '-4');
-      winTop.setAttribute('y', '-3');
+      winTop.setAttribute('y', '-3.2');
       winTop.setAttribute('width', '4');
       winTop.setAttribute('height', '0.8');
       winTop.setAttribute('fill', '#334155');
@@ -320,22 +347,22 @@ class AmbulanceDashboard {
 
       const winBtm = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       winBtm.setAttribute('x', '-4');
-      winBtm.setAttribute('y', '2.2');
+      winBtm.setAttribute('y', '2.4');
       winBtm.setAttribute('width', '4');
       winBtm.setAttribute('height', '0.8');
       winBtm.setAttribute('fill', '#334155');
       carG.appendChild(winBtm);
 
       // Index label text on car
-      const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      label.setAttribute('x', '0');
-      label.setAttribute('y', '2');
-      label.setAttribute('font-size', '6.5');
-      label.setAttribute('font-weight', '800');
-      label.setAttribute('text-anchor', 'middle');
-      label.setAttribute('fill', status === 'cleared' ? '#64748b' : '#ffffff');
-      label.textContent = (i + 1).toString();
-      carG.appendChild(label);
+      const carLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      carLabel.setAttribute('x', '0');
+      carLabel.setAttribute('y', '2.2');
+      carLabel.setAttribute('font-size', '6.5');
+      carLabel.setAttribute('font-weight', '800');
+      carLabel.setAttribute('text-anchor', 'middle');
+      carLabel.setAttribute('fill', status === 'cleared' ? '#64748b' : '#ffffff');
+      carLabel.textContent = (i + 1).toString();
+      carG.appendChild(carLabel);
 
       // Flashing hazard blinkers if blocking (progress < 100%)
       if (dept.percentage < 100) {
@@ -361,88 +388,57 @@ class AmbulanceDashboard {
       }
 
       this.obstaclesGroup.appendChild(carG);
-    });
-  }
 
-  private buildSidebar(): void {
-    const listEl = document.getElementById('dept-ranking-list');
-    if (!listEl) return;
+      // 2. Draw Checkpoint Label opposite to the pull-over shoulder (Y-offset is -22px from road center)
+      const lx = pt.x - nx * 22;
+      const ly = pt.y - ny * 22;
 
-    listEl.innerHTML = '';
-
-    this.departments.forEach((dept, i) => {
-      let status: 'cleared' | 'blocked' | 'active' = 'blocked';
-      if (i < this.activeRoadblockIndex) {
-        status = 'cleared';
-      } else if (i === this.activeRoadblockIndex) {
-        status = 'active';
-      }
-
-      const item = document.createElement('div');
-      item.className = `ranking-item ${status}`;
+      const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      label.setAttribute('x', lx.toString());
+      label.setAttribute('y', ly.toString());
+      label.setAttribute('class', `road-label ${status}`);
+      label.setAttribute('text-anchor', 'middle');
       
-      let badgeText = `${i + 1}`;
-      if (status === 'cleared') badgeText = '✓';
-      else if (status === 'active') badgeText = '🚑';
-
-      // Options A: Mini-Road Track calculations
-      const progressWidth = 8 + (dept.percentage / 100) * 170;
-      const ambulancePos = 8 + (dept.percentage / 100) * 155;
-
-      item.innerHTML = `
-        <div class="ranking-rank">${badgeText}</div>
-        <div class="ranking-details">
-          <div class="ranking-name">${dept.name}</div>
-          
-          <!-- Mini Winding/Straight Road Track -->
-          <svg class="mini-road-svg" viewBox="0 0 200 24" width="100%">
-            <!-- Road Line Background -->
-            <line x1="8" y1="12" x2="192" y2="12" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round" />
-            <!-- Voted Green/Blue Fill progress -->
-            <line x1="8" y1="12" x2="${progressWidth}" stroke="${dept.percentage === 100 ? '#22c55e' : '#38bdf8'}" stroke-width="8" stroke-linecap="round" />
-            <!-- Clinic emoji target at the end -->
-            <text x="180" y="16" font-size="11">🏥</text>
-            <!-- Ambulance driver emoji sliding -->
-            <text x="${ambulancePos}" y="16" font-size="12" class="${status === 'active' ? 'mini-ambulance-siren' : ''}">🚑</text>
-          </svg>
-          
-          <div class="ranking-meta">
-            <span>ใช้สิทธิ์แล้ว ${dept.voted} / ${dept.total} คน</span>
-            <span>${status === 'active' ? 'กำลังส่งผู้ป่วย! 🚨' : (status === 'cleared' ? 'ส่งสำเร็จ 🟢' : 'รอออกปฏิบัติการ ⏳')}</span>
-          </div>
-        </div>
-        <div class="ranking-percentage">${dept.percentage}%</div>
-      `;
-
-      item.addEventListener('click', () => {
-        this.soundManager.playClick();
-        this.createFloatingText(`${dept.name}: ${dept.percentage}% (โหวตแล้ว ${dept.voted}/${dept.total})`, "float-info");
-      });
-
-      listEl.appendChild(item);
+      // Shorten name if too long for map display
+      let shortName = dept.name;
+      if (shortName.length > 8) {
+        shortName = shortName.substring(0, 7) + '..';
+      }
+      label.textContent = `${i + 1}.${shortName} (${dept.percentage}%)`;
+      this.checkpointsGroup.appendChild(label);
     });
   }
 
-  // Animation Loop: Tween main ambulance position along straight road
+  // Animation Loop: Tween main ambulance position along winding road
   private animate = (): void => {
     requestAnimationFrame(this.animate);
 
-    if (!this.ambulance) return;
+    if (!this.roadPath || !this.ambulance) return;
 
-    // Pull current X progress towards target X smoothly
+    const totalLength = this.roadPath.getTotalLength();
+
+    // Pull current distance progress towards target distance smoothly
     const easeRate = 0.04;
-    const diff = this.targetAmbulanceX - this.currentAmbulanceX;
+    const diff = this.targetAmbulanceDist - this.currentAmbulanceDist;
     
     if (Math.abs(diff) > 0.1) {
-      this.currentAmbulanceX += diff * easeRate;
+      this.currentAmbulanceDist += diff * easeRate;
     } else {
-      this.currentAmbulanceX = this.targetAmbulanceX;
+      this.currentAmbulanceDist = this.targetAmbulanceDist;
     }
+
+    // Get winding path coordinates
+    const pt = this.roadPath.getPointAtLength(this.currentAmbulanceDist);
+
+    // Get angle
+    const ptAhead = this.roadPath.getPointAtLength(Math.min(this.currentAmbulanceDist + 2, totalLength));
+    const angleRad = Math.atan2(ptAhead.y - pt.y, ptAhead.x - pt.x);
+    const angleDeg = (angleRad * 180) / Math.PI;
 
     // Apply tiny engine vibration wiggle to ambulance for extra realism
     const wiggle = Math.sin(Date.now() * 0.06) * 0.4;
 
-    this.ambulance.setAttribute('transform', `translate(${this.currentAmbulanceX}, ${68 + wiggle}) rotate(0)`);
+    this.ambulance.setAttribute('transform', `translate(${pt.x}, ${pt.y + wiggle}) rotate(${angleDeg})`);
     this.ambulance.style.opacity = '1';
   };
 
