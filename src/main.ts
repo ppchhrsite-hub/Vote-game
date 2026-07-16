@@ -85,6 +85,18 @@ class HospitalConstructionDashboard {
     const modeText = document.getElementById('mode-text');
 
     if (simToggle && simSlider) {
+      // Simulator toggle helper to enable/disable buttons
+      const toggleSimButtons = (disabled: boolean) => {
+        const buttons = document.querySelectorAll('.sim-btn');
+        buttons.forEach(btn => {
+          if (disabled) {
+            btn.setAttribute('disabled', 'true');
+          } else {
+            btn.removeAttribute('disabled');
+          }
+        });
+      };
+
       simToggle.addEventListener('change', () => {
         this.soundManager.playClick();
         this.isSimulationMode = simToggle.checked;
@@ -92,6 +104,7 @@ class HospitalConstructionDashboard {
         if (this.isSimulationMode) {
           // Manual Simulation Mode active
           simSlider.removeAttribute('disabled');
+          toggleSimButtons(false);
           if (modeText) {
             modeText.textContent = "โหมดทดสอบจำลอง (Simulator Mode)";
             modeText.className = "mode-text manual";
@@ -102,6 +115,7 @@ class HospitalConstructionDashboard {
         } else {
           // Return to Live Mode
           simSlider.setAttribute('disabled', 'true');
+          toggleSimButtons(true);
           if (modeText) {
             modeText.textContent = "โหมดดึงข้อมูลอัตโนมัติ (Live Mode)";
             modeText.className = "mode-text";
@@ -116,6 +130,20 @@ class HospitalConstructionDashboard {
           this.updateSimulationState(parseInt(simSlider.value));
         }
       });
+
+      // Quick select buttons click listeners
+      const simBtnGroup = document.getElementById('sim-btn-group');
+      if (simBtnGroup) {
+        simBtnGroup.addEventListener('click', (e) => {
+          if (!this.isSimulationMode) return;
+          const btn = (e.target as HTMLElement).closest('.sim-btn') as HTMLButtonElement | null;
+          if (btn) {
+            const pct = parseInt(btn.dataset.pct || '0');
+            simSlider.value = pct.toString();
+            this.updateSimulationState(pct);
+          }
+        });
+      }
     }
   }
 
@@ -147,6 +175,17 @@ class HospitalConstructionDashboard {
 
     // Render construction
     this.renderStage(stage);
+
+    // Update active quick select button class styling
+    const buttons = document.querySelectorAll('.sim-btn');
+    buttons.forEach(btn => {
+      const btnPct = parseInt((btn as HTMLElement).dataset.pct || '0');
+      if (btnPct === pctValue) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
   }
 
   private async syncElectionData(): Promise<void> {
@@ -219,6 +258,19 @@ class HospitalConstructionDashboard {
       }
 
       this.renderStage(currentStage);
+
+      // Highlight the corresponding quick button under Live Mode (rounded to nearest 5%)
+      const nearestPct = Math.round(this.overallPercentage / 5) * 5;
+      const buttons = document.querySelectorAll('.sim-btn');
+      buttons.forEach(btn => {
+        const btnPct = parseInt((btn as HTMLElement).dataset.pct || '0');
+        if (btnPct === nearestPct) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
       this.createFloatingText("ซิงก์ข้อมูลสร้างตึกสำเร็จ! 🏗️", "float-info");
 
     } catch (e) {

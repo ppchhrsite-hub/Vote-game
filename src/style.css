@@ -501,3 +501,39 @@ input:checked + .slider:before {
 .btn-ambulance-link:hover {
   background-color: #0f766e;
 }
+
+/* Quick simulation button group */
+.sim-btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+  justify-content: center;
+}
+.sim-btn {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  padding: 0.35rem 0.55rem;
+  border-radius: 8px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #64748b;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+.sim-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: var(--color-primary-dark);
+  border-color: #cbd5e1;
+}
+.sim-btn.active:not(:disabled) {
+  background: var(--color-primary-light);
+  color: #ffffff;
+  border-color: var(--color-primary-light);
+  box-shadow: 0 2px 5px rgba(14, 165, 233, 0.35);
+}
+.sim-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: #f8fafc;
+}
