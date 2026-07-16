@@ -287,8 +287,8 @@ class AmbulanceDashboard {
         ny = 0;
       }
 
-      // Calculate pull-over offset (0 at 0% progress, 26px off-road at 100%)
-      const offset = (dept.percentage / 100) * 26;
+      // Calculate pull-over offset (0 at 0% progress, 28px off-road at 100% to clear the road fully)
+      const offset = (dept.percentage / 100) * 28;
       const cx = pt.x + nx * offset;
       const cy = pt.y + ny * offset;
 
@@ -315,28 +315,28 @@ class AmbulanceDashboard {
 
       // Wheels (Top-down alignment)
       const wTL = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      wTL.setAttribute('x', '-24'); wTL.setAttribute('y', '-21'); wTL.setAttribute('width', '12'); wTL.setAttribute('height', '4'); wTL.setAttribute('rx', '1'); wTL.setAttribute('fill', '#1e293b');
+      wTL.setAttribute('x', '-18'); wTL.setAttribute('y', '-15'); wTL.setAttribute('width', '9'); wTL.setAttribute('height', '3'); wTL.setAttribute('rx', '0.8'); wTL.setAttribute('fill', '#1e293b');
       carG.appendChild(wTL);
 
       const wBL = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      wBL.setAttribute('x', '-24'); wBL.setAttribute('y', '17'); wBL.setAttribute('width', '12'); wBL.setAttribute('height', '4'); wBL.setAttribute('rx', '1'); wBL.setAttribute('fill', '#1e293b');
+      wBL.setAttribute('x', '-18'); wBL.setAttribute('y', '12'); wBL.setAttribute('width', '9'); wBL.setAttribute('height', '3'); wBL.setAttribute('rx', '0.8'); wBL.setAttribute('fill', '#1e293b');
       carG.appendChild(wBL);
 
       const wTR = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      wTR.setAttribute('x', '12'); wTR.setAttribute('y', '-21'); wTR.setAttribute('width', '12'); wTR.setAttribute('height', '4'); wTR.setAttribute('rx', '1'); wTR.setAttribute('fill', '#1e293b');
+      wTR.setAttribute('x', '9'); wTR.setAttribute('y', '-15'); wTR.setAttribute('width', '9'); wTR.setAttribute('height', '3'); wTR.setAttribute('rx', '0.8'); wTR.setAttribute('fill', '#1e293b');
       carG.appendChild(wTR);
 
       const wBR = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      wBR.setAttribute('x', '12'); wBR.setAttribute('y', '17'); wBR.setAttribute('width', '12'); wBR.setAttribute('height', '4'); wBR.setAttribute('rx', '1'); wBR.setAttribute('fill', '#1e293b');
+      wBR.setAttribute('x', '9'); wBR.setAttribute('y', '12'); wBR.setAttribute('width', '9'); wBR.setAttribute('height', '3'); wBR.setAttribute('rx', '0.8'); wBR.setAttribute('fill', '#1e293b');
       carG.appendChild(wBR);
 
       // Main rectangle body
       const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      rect.setAttribute('x', '-33');
-      rect.setAttribute('y', '-18');
-      rect.setAttribute('width', '66');
-      rect.setAttribute('height', '36');
-      rect.setAttribute('rx', '5');
+      rect.setAttribute('x', '-25');
+      rect.setAttribute('y', '-13');
+      rect.setAttribute('width', '50');
+      rect.setAttribute('height', '26');
+      rect.setAttribute('rx', '4');
       rect.setAttribute('fill', status === 'cleared' ? '#cbd5e1' : colors[i % colors.length]);
       rect.setAttribute('stroke', '#1e293b');
       rect.setAttribute('stroke-width', '1.8');
@@ -344,16 +344,16 @@ class AmbulanceDashboard {
 
       // Black vertical stripe (mockup signature element)
       const stripe = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      stripe.setAttribute('x', '6');
-      stripe.setAttribute('y', '-18');
-      stripe.setAttribute('width', '6');
-      stripe.setAttribute('height', '36');
+      stripe.setAttribute('x', '5');
+      stripe.setAttribute('y', '-13');
+      stripe.setAttribute('width', '5');
+      stripe.setAttribute('height', '26');
       stripe.setAttribute('fill', '#1e293b');
       carG.appendChild(stripe);
 
       // Windshield
       const glass = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      glass.setAttribute('d', 'M 14,-13 L 20,-13 Q 26,-13 26,-6 L 26,6 Q 26,13 20,13 L 14,13 Z');
+      glass.setAttribute('d', 'M 10,-9 L 15,-9 Q 20,-9 20,-4 L 20,4 Q 20,9 15,9 L 10,9 Z');
       glass.setAttribute('fill', '#bae6fd');
       glass.setAttribute('stroke', '#1e293b');
       glass.setAttribute('stroke-width', '1.2');
@@ -361,9 +361,9 @@ class AmbulanceDashboard {
 
       // White circular racing number plate badge on roof
       const badge = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      badge.setAttribute('cx', '-10');
+      badge.setAttribute('cx', '-8');
       badge.setAttribute('cy', '0');
-      badge.setAttribute('r', '9');
+      badge.setAttribute('r', '7.5');
       badge.setAttribute('fill', '#ffffff');
       badge.setAttribute('stroke', '#1e293b');
       badge.setAttribute('stroke-width', '1');
@@ -371,9 +371,9 @@ class AmbulanceDashboard {
 
       // Department Number inside the car (centered inside badge)
       const carLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      carLabel.setAttribute('x', '-10');
-      carLabel.setAttribute('y', '4');
-      carLabel.setAttribute('font-size', '12');
+      carLabel.setAttribute('x', '-8');
+      carLabel.setAttribute('y', '3.5');
+      carLabel.setAttribute('font-size', '10');
       carLabel.setAttribute('font-weight', '900');
       carLabel.setAttribute('text-anchor', 'middle');
       carLabel.setAttribute('fill', '#1e293b');
@@ -383,9 +383,9 @@ class AmbulanceDashboard {
       // Flashing alert dot if active roadblock
       if (status === 'active') {
         const siren = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        siren.setAttribute('cx', '19');
+        siren.setAttribute('cx', '14');
         siren.setAttribute('cy', '0');
-        siren.setAttribute('r', '6');
+        siren.setAttribute('r', '4.5');
         siren.setAttribute('fill', '#ef4444');
         siren.setAttribute('id', 'siren-red'); // flashing red alert siren!
         carG.appendChild(siren);
