@@ -274,8 +274,8 @@ body {
   overflow: hidden;
 }
 
-.game-pane {
-  height: 60vh;
+.overall-progress-pane {
+  height: 180px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -675,3 +675,22 @@ body {
 .float-water { color: var(--color-water); }
 .float-error { color: hsl(0, 85%, 65%); }
 .float-info { color: #1e293b; }
+
+/* Mini Road Track Styles for Department Cards */
+.mini-road-svg {
+  margin-top: 0.5rem;
+  overflow: visible;
+  display: block;
+}
+
+@keyframes siren-flash-yellow {
+  0%, 100% { filter: drop-shadow(0 0 3px #ef4444); }
+  50% { filter: none; }
+}
+
+.mini-ambulance-siren {
+  animation: siren-flash-yellow 0.4s infinite;
+  cursor: pointer;
+  user-select: none;
+}
+
