@@ -319,13 +319,6 @@ body {
   opacity: 1;
 }
 
-/* Easing window glow */
-.win-glow-item {
-  transition: fill 0.8s ease;
-}
-.completed .win-glow-item {
-  fill: url(#window-glow) !important;
-}
 
 /* Simulation Panel style at bottom */
 .simulation-bar {
