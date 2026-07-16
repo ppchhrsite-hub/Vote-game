@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Election Monitor 3D - Phitsanuvej Phichit Hospital</title>
+  <!-- Google Fonts & Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script type="module" crossorigin src="./assets/index-DKj3qfU0.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-xefpElOx.css">
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="overlay">
+    <div class="loader-content">
+      <div class="loader-logo">🌻</div>
+      <h2>Welfare Election Monitor 3D</h2>
+      <p>โรงพยาบาลพิษณุเวช พิจิตร</p>
+      <div class="progress-bar-container">
+        <div id="loading-progress" class="progress-bar" style="width: 0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-container">
+    <!-- Header Dashboard -->
+    <header class="card glass header-dashboard">
+      <div class="header-logo">
+        <span class="hospital-emblem">🏥</span>
+        <div class="header-title-wrapper">
+          <h2>เลือกตั้งคณะกรรมการสวัสดิการ โรงพยาบาลพิษณุเวช พิจิตร พ.ศ. ๒๕๖๙</h2>
+          <p>สรุปสัดส่วนการใช้สิทธิ์ลงคะแนนแยกตามแผนก (เรียลไทม์)</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="live-indicator">
+          <span class="pulse-dot"></span>
+          <span class="live-text">LIVE UPDATE</span>
+        </div>
+        <button id="btn-audio" class="btn-circle glass" title="Toggle Sound">
+          <span class="material-symbols-rounded">volume_up</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats Overview Cards Grid -->
+    <section class="stats-overview-grid">
+      <!-- 1. Turnout Rate -->
+      <div class="card glass stat-card">
+        <div class="stat-icon turnout-icon">📊</div>
+        <div class="stat-details">
+          <span class="stat-label">สัดส่วนผู้ใช้สิทธิ์รวม</span>
+          <h3 id="overall-percentage" class="stat-value">0.0%</h3>
+          <span class="stat-sub">ของจำนวนผู้มีสิทธิ์เลือกตั้งทั้งหมด</span>
+        </div>
+      </div>
+
+      <!-- 2. Voted Count -->
+      <div class="card glass stat-card">
+        <div class="stat-icon voted-icon">👥</div>
+        <div class="stat-details">
+          <span class="stat-label">จำนวนผู้ใช้สิทธิ์แล้ว</span>
+          <h3 id="voted-ratio" class="stat-value">0 / 0</h3>
+          <span class="stat-sub">คน (โหวตแล้ว / ผู้มีสิทธิ์)</span>
+        </div>
+      </div>
+
+      <!-- 3. Top Turnout Department -->
+      <div class="card glass stat-card">
+        <div class="stat-icon top-icon">🏆</div>
+        <div class="stat-details">
+          <span class="stat-label">แผนกที่ใช้สิทธิ์สูงสุด</span>
+          <h3 id="top-department" class="stat-value">-</h3>
+          <span class="stat-sub">อัตราการใช้สิทธิ์ 100%</span>
+        </div>
+      </div>
+
+      <!-- 4. Last Sync & Actions -->
+      <div class="card glass stat-card sync-card">
+        <div class="stat-icon sync-icon">🔄</div>
+        <div class="stat-details">
+          <span class="stat-label">อัปเดตล่าสุด</span>
+          <h3 id="last-update-time" class="stat-value">-</h3>
+          <button id="btn-sync" class="btn-primary btn-sync">
+            <span class="material-symbols-rounded">sync</span>
+            ดึงข้อมูลล่าสุด
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Viewport Layout -->
+    <main class="main-layout">
+      <!-- 3D Canvas Left Pane -->
+      <section class="card glass game-pane">
+        <div class="pane-header">
+          <span class="material-symbols-rounded">yard</span>
+          <h3>ทุ่งทานตะวันแห่งการเติบโต (Sunflower Field of Growth)</h3>
+        </div>
+        <div id="game-container"></div>
+      </section>
+
+      <!-- Department List Right Pane -->
+      <section class="card glass list-pane">
+        <div class="pane-header">
+          <span class="material-symbols-rounded">sort</span>
+          <h3>ลำดับอัตราการใช้สิทธิ์แยกรายแผนก</h3>
+        </div>
+        <div id="dept-ranking-list" class="ranking-list">
+          <!-- Populated dynamically by JavaScript -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Float Texts Container for Screen-Space Floatings -->
+  <div id="floating-texts-container"></div>
+
+  <!-- Module Script Entry -->
+</body>
+</html>
