@@ -697,5 +697,26 @@
 
   <!-- Script entry point -->
   <script type="module" src="/src/main.ts"></script>
+  <div id="debug-style-out" style="position:fixed;top:0;left:0;background:yellow;z-index:999999;font-size:14px;color:black;padding:10px;"></div>
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const el = document.getElementById('layer-stage-1');
+        if (el) {
+          const style = window.getComputedStyle(el);
+          const rect = el.getBoundingClientRect();
+          document.getElementById('debug-style-out').innerText = 
+            'opacity: ' + style.opacity + 
+            ', display: ' + style.display + 
+            ', visibility: ' + style.visibility +
+            ', fill: ' + style.fill +
+            ', width: ' + rect.width +
+            ', height: ' + rect.height;
+        } else {
+          document.getElementById('debug-style-out').innerText = 'layer-stage-1 not found!';
+        }
+      }, 2000);
+    });
+  </script>
 </body>
 </html>
