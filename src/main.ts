@@ -1,7 +1,5 @@
 import { SoundManager } from './SoundManager';
 
-
-
 class HospitalConstructionDashboard {
   private spreadsheetId = '1aLUltNZirflTIYn2-oqeGxpND1vXBW0fScddrDNvmJs';
   private totalEmployees = 181;
@@ -29,14 +27,14 @@ class HospitalConstructionDashboard {
     { title: "ติดตั้งกระจกอาคาร", sub: "เฟส 10: งานติดตั้งกระจกใสบลูสกายบนกรอบหน้าต่างรอบตึกทุกชั้น" },     // 50% (Stage 10)
     { title: "ติดตั้งระแนงแต่งตึกสีน้ำเงิน", sub: "เฟส 11: ติดตั้งระแนงแนวตั้งสีน้ำเงินสวยงามเด่นชัดชั้นบน" },    // 55% (Stage 11)
     { title: "โครงเสาป้ายยักษ์ทางเข้า", sub: "เฟส 12: ก่อสร้างโครงเสาป้ายโฆษณาทางเข้าฝั่งซ้ายของโครงการ" },   // 60% (Stage 12)
-    { title: "ติดตั้งหลังคากันสาดทางเข้า", sub: "เฟส 13: งานทำกันสาดล็อบบี้และติดตัวอักษรทางเข้าหลัก" },     // 65% (Stage 13)
-    { title: "ป้ายแผนกฉุกเฉินและทางเข้า", sub: "เฟส 14: ติดตั้งหลังคาสีแดงแผนกฉุกเฉินและป้าย Emergency" },   // 70% (Stage 14)
-    { title: "ตั้งโครงเหล็กป้ายดาดฟ้า", sub: "เฟส 15: ก่อสร้างโครงถักเหล็กและติดแผงป้ายสีน้ำเงินขนาดใหญ่บนดาดฟ้า" }, // 75% (Stage 15)
-    { title: "ติดตั้งโลโก้และชื่อตึกโรงพยาบาล", sub: "เฟส 16: ติดตราสัญลักษณ์ทางการแพทย์และตัวอักษรป้ายใหญ่ดาดฟ้า" }, // 80% (Stage 16)
-    { title: "ภูมิทัศน์ลานหน้าอาคาร & ป้อมยาม", sub: "เฟส 17: งานปูพื้นหญ้าเขียวหน้าตึกและติดตั้งห้องป้อมยามหน้าทางเข้า" }, // 85% (Stage 17)
-    { title: "สวนหย่อมไม้ยืนต้น", sub: "เฟส 18: งานปลูกต้นไม้ร่มรื่น สวนตกแต่งด้านซ้ายและขวาของอาคาร" },    // 90% (Stage 18)
-    { title: "จัดแต่งสวน & ติดตั้งเสาธง", sub: "เฟส 19: ติดตั้งเสาธงชาติ/เสาธงพยาบาล และจัดวางกระถางไม้ประดับล็อบบี้" }, // 95% (Stage 19)
-    { title: "อาคารเสร็จสมบูรณ์พร้อมฉลอง!", sub: "เฟส 20: เปิดไฟหน้าต่างตึกสว่างไสว เคลียร์เขตก่อสร้าง เฉลิมฉลองครบร้อยเปอร์เซ็นต์!" } // 100% (Stage 20)
+    { title: "รายละเอียดป้ายทางเข้า", sub: "เฟส 13: ติดตราสัญลักษณ์ ข้อความ และป้ายฉุกเฉินทางเข้า" },        // 65% (Stage 13)
+    { title: "หลังคากันสาด & ชื่ออาคารหลัก", sub: "เฟส 14: งานทำกันสาดล็อบบี้และติดตัวอักษรทางเข้าหลัก" },     // 70% (Stage 14)
+    { title: "ป้ายแผนกฉุกเฉิน 24 ชม.", sub: "เฟส 15: ติดตั้งหลังคาสีแดงแผนกฉุกเฉินและป้าย Emergency" },       // 75% (Stage 15)
+    { title: "ตั้งโครงเหล็กป้ายดาดฟ้า", sub: "เฟส 16: ก่อสร้างโครงถักเหล็กและติดแผงป้ายสีน้ำเงินขนาดใหญ่บนดาดฟ้า" }, // 80% (Stage 16)
+    { title: "ติดตั้งตราสัญลักษณ์ทางการแพทย์", sub: "เฟส 17: ติดตราสัญลักษณ์กากบาททางการแพทย์บนแผงป้ายดาดฟ้า" }, // 85% (Stage 17)
+    { title: "ติดตั้งข้อความป้ายโรงพยาบาล", sub: "เฟส 18: ติดตัวอักษรชื่อ พิษณุเวช พิจิตร บนป้ายใหญ่ดาดฟ้า" },  // 90% (Stage 18)
+    { title: "เก็บงานสถาปัตยกรรม & ขอบป้าย", sub: "เฟส 19: ตรวจสอบความสมบูรณ์ของโครงสร้างอาคารและป้ายชื่อ" },  // 95% (Stage 19)
+    { title: "เปิดอาคารเสร็จสมบูรณ์ 100%!", sub: "เฟส 20: เติมสวนหย่อม ปลูกต้นไม้ ตั้งเสาธง และฉลองเปิดอาคาร!" } // 100% (Stage 20)
   ];
 
   constructor() {
@@ -148,39 +146,36 @@ class HospitalConstructionDashboard {
   }
 
   // Handle simulation slider values change
-  private updateSimulationState(pctValue: number): void {
-    const stage = Math.min(20, Math.floor(pctValue / 5));
+  public updateSimulationState(percentage: number): void {
+    this.overallPercentage = percentage;
     
-    // Play sound on stage transition
-    if (stage !== this.lastActiveStage) {
-      if (stage === 20) {
+    // Update ratio text mock for simulation
+    this.totalVoted = Math.round((percentage / 100) * this.totalEmployees);
+    
+    const pctEl = document.getElementById('overall-percentage');
+    const ratioEl = document.getElementById('voted-ratio');
+    if (pctEl) pctEl.textContent = `${percentage.toFixed(1)}%`;
+    if (ratioEl) ratioEl.textContent = `${this.totalVoted} / ${this.totalEmployees}`;
+
+    // Map 0-100% to stage 0-20
+    const stageNum = Math.min(20, Math.floor(percentage / 5));
+    
+    if (stageNum !== this.lastActiveStage) {
+      if (stageNum === 20) {
         this.soundManager.playCheer();
       } else {
         this.soundManager.playCoin();
       }
-      this.lastActiveStage = stage;
+      this.lastActiveStage = stageNum;
     }
 
-    // Update UI labels manually
-    const turnoutVal = document.getElementById('overall-percentage');
-    if (turnoutVal) {
-      turnoutVal.textContent = pctValue.toFixed(1) + '%';
-    }
+    this.renderStage(stageNum);
 
-    const votedRatio = document.getElementById('voted-ratio');
-    if (votedRatio) {
-      const simulatedVoted = Math.round((pctValue / 100) * this.totalEmployees);
-      votedRatio.textContent = `${simulatedVoted} / ${this.totalEmployees}`;
-    }
-
-    // Render construction
-    this.renderStage(stage);
-
-    // Update active quick select button class styling
+    // Highlight active button
     const buttons = document.querySelectorAll('.sim-btn');
     buttons.forEach(btn => {
       const btnPct = parseInt((btn as HTMLElement).dataset.pct || '0');
-      if (btnPct === pctValue) {
+      if (btnPct === percentage) {
         btn.classList.add('active');
       } else {
         btn.classList.remove('active');
@@ -188,65 +183,50 @@ class HospitalConstructionDashboard {
     });
   }
 
+  // Sync Live Data from Google Sheets CSV Endpoint
   private async syncElectionData(): Promise<void> {
     this.updateLoadingUI(true);
 
     try {
-      // Fetch Employees Whitelist
-      const empUrl = `https://docs.google.com/spreadsheets/d/${this.spreadsheetId}/gviz/tq?tqx=out:csv&sheet=employee`;
-      const empRes = await fetch(empUrl);
-      if (!empRes.ok) throw new Error("Failed to fetch employee list");
-      const empCsv = await empRes.text();
-
-      // Fetch Votes data
-      const votesUrl = `https://docs.google.com/spreadsheets/d/${this.spreadsheetId}/gviz/tq?tqx=out:csv&sheet=Votes`;
-      const votesRes = await fetch(votesUrl);
-      if (!votesRes.ok) throw new Error("Failed to fetch votes list");
-      const votesCsv = await votesRes.text();
-
-      // Parse csv datasets
-      const employeesData = this.parseCSV(empCsv);
-      const votesData = this.parseCSV(votesCsv);
-
-      // Extract whitelist
-      const whitelist: Array<{ id: string; dept: string }> = [];
-      for (let i = 1; i < employeesData.length; i++) {
-        const row = employeesData[i];
-        if (row && row[0]) {
-          whitelist.push({
-            id: String(row[0]).trim(),
-            dept: String(row[3]).trim()
-          });
-        }
+      // 1. Fetch CSV published endpoint
+      const gsheetCsvUrl = `https://docs.google.com/spreadsheets/d/${this.spreadsheetId}/export?format=csv&id=${this.spreadsheetId}&gid=0&_t=${Date.now()}`;
+      const response = await fetch(gsheetCsvUrl);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
       }
 
-      // Extract voted map
-      const votedIds: Record<string, boolean> = {};
-      for (let j = 1; j < votesData.length; j++) {
-        const row = votesData[j];
-        if (row && row[1]) {
-          const empId = String(row[1]).trim();
-          if (empId) {
-            votedIds[empId] = true;
+      const csvText = await response.text();
+      const rows = csvText.split('\n').map(row => row.split(','));
+
+      // Count voted users
+      let votedCount = 0;
+      for (let i = 1; i < rows.length; i++) {
+        if (rows[i] && rows[i].length > 1) {
+          const status = rows[i][1] ? rows[i][1].trim().toLowerCase() : '';
+          if (status === 'ใช้สิทธิ์แล้ว' || status === 'voted' || status === '1' || status === 'true') {
+            votedCount++;
           }
         }
       }
 
-      // Aggregate voted count
-      let votedCount = 0;
-      whitelist.forEach(emp => {
-        if (votedIds[emp.id]) {
-          votedCount++;
-        }
-      });
-
       this.totalVoted = votedCount;
-      this.overallPercentage = this.totalEmployees > 0 ? Math.min(Math.round((this.totalVoted / this.totalEmployees) * 100 * 10) / 10, 100) : 0;
-      this.lastUpdate = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' น.';
-
-      // Apply changes to UI
-      this.updateHUD();
+      this.overallPercentage = (this.totalVoted / this.totalEmployees) * 100;
       
+      // Format current timestamp
+      const now = new Date();
+      this.lastUpdate = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' น.';
+
+      // Update Dashboard HUD UI
+      const pctEl = document.getElementById('overall-percentage');
+      const ratioEl = document.getElementById('voted-ratio');
+      const timeEl = document.getElementById('last-update-time');
+      
+      if (pctEl) pctEl.textContent = `${this.overallPercentage.toFixed(1)}%`;
+      if (ratioEl) ratioEl.textContent = `${this.totalVoted} / ${this.totalEmployees}`;
+      if (timeEl) timeEl.textContent = this.lastUpdate;
+
+      // Determine current stage (0 - 20)
       const currentStage = Math.min(20, Math.floor(this.overallPercentage / 5));
       if (currentStage !== this.lastActiveStage) {
         if (currentStage === 20) {
@@ -271,7 +251,7 @@ class HospitalConstructionDashboard {
         }
       });
 
-      this.createFloatingText("ซิงก์ข้อมูลสร้างตึกสำเร็จ! 🏗️", "float-info");
+      this.createFloatingText("ซิงค์ข้อมูลสร้างตึกสำเร็จ! 🏗️", "float-info");
 
     } catch (e) {
       console.error("Sync error:", e);
@@ -325,10 +305,10 @@ class HospitalConstructionDashboard {
       }
     }
 
-    // 4. Totem details (always visible once totem is built at stage 12)
+    // 4. Totem details (visible once totem details built at stage 13+)
     const totemDetails = document.getElementById('layer-totem-details');
     if (totemDetails) {
-      if (stageNum >= 12) {
+      if (stageNum >= 13) {
         totemDetails.classList.add('built');
       } else {
         totemDetails.classList.remove('built');
@@ -358,69 +338,36 @@ class HospitalConstructionDashboard {
     }
   }
 
-  private updateHUD(): void {
-    const overallPctEl = document.getElementById('overall-percentage');
-    if (overallPctEl) {
-      overallPctEl.textContent = this.overallPercentage.toFixed(1) + '%';
-    }
-
-    const votedRatioEl = document.getElementById('voted-ratio');
-    if (votedRatioEl) {
-      votedRatioEl.textContent = `${this.totalVoted} / ${this.totalEmployees}`;
-    }
-
-    const lastUpdateEl = document.getElementById('last-update-time');
-    if (lastUpdateEl) {
-      lastUpdateEl.textContent = this.lastUpdate;
+  private updateLoadingUI(isLoading: boolean): void {
+    const btnSync = document.getElementById('btn-sync');
+    if (btnSync) {
+      const icon = btnSync.querySelector('.material-symbols-rounded');
+      if (isLoading) {
+        btnSync.setAttribute('disabled', 'true');
+        if (icon) icon.classList.add('spin');
+      } else {
+        btnSync.removeAttribute('disabled');
+        if (icon) icon.classList.remove('spin');
+      }
     }
   }
 
-  // CSV parsing logic helper
-  private parseCSV(text: string): string[][] {
-    const result: string[][] = [];
-    let row: string[] = [];
-    let inQuotes = false;
-    let entry = '';
-
-    for (let i = 0; i < text.length; i++) {
-      const char = text[i];
-      const nextChar = text[i + 1];
-
-      if (char === '"') {
-        if (inQuotes && nextChar === '"') {
-          entry += '"';
-          i++;
-        } else {
-          inQuotes = !inQuotes;
-        }
-      } else if (char === ',' && !inQuotes) {
-        row.push(entry);
-        entry = '';
-      } else if ((char === '\n' || char === '\r') && !inQuotes) {
-        if (char === '\r' && nextChar === '\n') {
-          i++;
-        }
-        row.push(entry);
-        result.push(row);
-        row = [];
-        entry = '';
-      } else {
-        entry += char;
-      }
+  private hideLoader(): void {
+    const loader = document.getElementById('loading-screen');
+    if (loader) {
+      loader.style.opacity = '0';
+      setTimeout(() => {
+        loader.style.display = 'none';
+      }, 500);
     }
-    if (entry || row.length > 0) {
-      row.push(entry);
-      result.push(row);
-    }
-    return result;
   }
 
   private startAutoSync(ms: number): void {
-    if (this.autoSyncIntervalId) {
-      clearInterval(this.autoSyncIntervalId);
-    }
-    this.autoSyncIntervalId = setInterval(async () => {
-      await this.syncElectionData();
+    this.stopAutoSync();
+    this.autoSyncIntervalId = setInterval(() => {
+      if (!this.isSimulationMode) {
+        this.syncElectionData();
+      }
     }, ms);
   }
 
@@ -431,32 +378,28 @@ class HospitalConstructionDashboard {
     }
   }
 
-  private updateLoadingUI(show: boolean): void {
-    const progressEl = document.getElementById('loading-progress');
-    if (progressEl) {
-      progressEl.style.width = show ? '60%' : '100%';
-    }
-  }
+  private createFloatingText(message: string, className: string): void {
+    const toast = document.createElement('div');
+    toast.className = `toast-msg ${className}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
 
-  private hideLoader(): void {
-    const loadingScreen = document.getElementById('loading-screen');
-    if (loadingScreen) {
-      loadingScreen.classList.add('hidden');
-    }
-  }
+    setTimeout(() => {
+      toast.classList.add('show');
+    }, 50);
 
-  private createFloatingText(text: string, type: string): void {
-    const container = document.body;
-    const el = document.createElement('div');
-    el.className = `floating-text ${type}`;
-    el.textContent = text;
-    el.style.left = '50%';
-    el.style.top = '45%';
-
-    container.appendChild(el);
-    setTimeout(() => el.remove(), 1500);
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => {
+        if (document.body.contains(toast)) {
+          document.body.removeChild(toast);
+        }
+      }, 300);
+    }, 3000);
   }
 }
 
-// Instantiate
-new HospitalConstructionDashboard();
+// Initialize Application on DOM Ready
+document.addEventListener('DOMContentLoaded', () => {
+  new HospitalConstructionDashboard();
+});
